@@ -1,0 +1,76 @@
+/* STAR RATING */
+	.star-rating{
+		list-style:none;
+		margin-left:5px!important;
+		padding:0px;
+		width: 125px;
+		height: 25px;
+		position: relative;
+		background: url(star.png) top left repeat-x;
+	}
+	.star-rating li{
+		padding:0px;
+		margin:0px;
+		/*\*/
+		float: left;
+		/* */
+		top: 0px;
+	}
+	.star-rating li a{
+		display:block;
+		width:25px;
+		height: 25px;
+		text-decoration: none;
+		text-indent: -9000px;
+		z-index: 20;
+		position: absolute;
+		padding: 0px;
+	}
+	.star-rating li a:hover{
+		background: url(star.png) left bottom;
+		z-index: 2;
+		left: 0px;
+	}
+	.star-rating a.one-star{
+		left: 0px;
+		top: 0px;
+	}
+	.star-rating a.one-star:hover{
+		width:25px;
+	}
+	.star-rating a.two-stars{
+		left:25px;
+		top: 0px;
+	}
+	.star-rating a.two-stars:hover{
+		width: 50px;
+	}
+	.star-rating a.three-stars{
+		left: 50px;
+		top: 0px;
+	}
+	.star-rating a.three-stars:hover{
+		width: 75px;
+	}
+	.star-rating a.four-stars{
+		left: 75px;
+		top: 0px;
+	}	
+	.star-rating a.four-stars:hover{
+		width: 100px;
+	}
+	.star-rating a.five-stars{
+		left: 100px;
+		top: 0px;
+	}
+	.star-rating a.five-stars:hover{
+		width: 125px;
+	}
+	.star-rating li.current-rating{
+		background: url(star.png) left center;
+		position: absolute;
+		height: 25px;
+		display: block;
+		text-indent: -9000px;
+		z-index: 1;
+	}
