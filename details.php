@@ -50,6 +50,18 @@ if ($_GET['map']) {
 	$dbq = new PDO('sqlite:/srv/http/quaddicted.sqlite');
 	$dbq->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 
+
+	$preparedStatement = $dbq->prepare('SELECT * FROM maps WHERE zipname = :zipname');
+	$preparedStatement->execute(array(':zipname' => $zipname));
+	$result = $preparedStatement->fetch();
+
+	if (!$result) {
+		header('HTTP/1.0 404 Not Found');
+		echo $zipname." is not in the database.";
+		require("_footer.php");
+		die();
+	}
+	
 	// if tags were added, add them to the db
 	if (isset($_POST['progress'])) {
 		if($_POST['tags']) {
@@ -61,7 +73,10 @@ if ($_GET['map']) {
 
 			if (!$pun_user['is_guest']) {
 				$username = pun_htmlspecialchars($pun_user['username']);
-			} else {echo "wouldn't you like an username with your tags?";}
+			} else {
+				echo "wouldn't you like an username with your tags?";
+				die();
+			}
 
 			$tags = explode(",", ($_POST["tags"]));
 			$zipname = $_POST["zipname"];
@@ -87,17 +102,123 @@ if ($_GET['map']) {
 			$stmt->closeCursor();
 		}
 	}//end tag
+	
+	// if a file was uploaded, process it
+	if($_FILES['uploadedfile'] && $_POST['demodetails']) {		
 
-	$preparedStatement = $dbq->prepare('SELECT * FROM maps WHERE zipname = :zipname');
-	$preparedStatement->execute(array(':zipname' => $zipname));
-	$result = $preparedStatement->fetch();
+		if (!$pun_user['is_guest']) {
+			$username = pun_htmlspecialchars($pun_user['username']);
+		} else {
+			echo "only logged in users can upload demos, sorry";
+			die();
+		}
+		
+		/* Inspect and sanitize the POST text data */
+		
+		if ($zipname != $_POST['demodetails']['zipname']) { echo "wrong zipname?"; die(); }
+		
+		$bspname = $_POST['demodetails']['bspname'];
+		if ($bspname === "complete") {
+			$bspname = "complete";
+		} elseif ($bspname) {
+			$preparedStatement = $dbq->prepare('SELECT bsp FROM startmaps WHERE zipname = :zipname AND bsp = :bspname');
+			$preparedStatement->execute(array(':zipname' => $zipname, ':bspname' => $bspname));
+			$startmaps = $preparedStatement->fetch();
+			if (!$startmaps) {echo "wrong bspname?"; die(); }
+		} else {
+			$bspname = $zipname; // release has one map inside and it is named the same as the zip
+		}
+				
+		$skill = $_POST['demodetails']['skill'];
+		if (!preg_match('/[0-3]/', $skill)) { echo "wrong skill?"; die(); }
+		$protocol = $_POST['demodetails']['protocol'];
+		if (!preg_match('/\d+/', $protocol)) { echo "wrong protocol?"; die(); }
+		$date = $_POST['demodetails']['date']; //YYYY-MM-DD
+		if (!preg_match('/\d{4}-\d{2}-\d{2}/', $date)) { echo "wrong date?"; die(); }
+		
+		$length = $_POST['demodetails']['length']; // (XXh)(XXm)(XXs)
+		if (strlen($length) > 0 && !preg_match('/[0-9]+[d,m,s]+/', $length)) { $length = false; echo "wrong length?"; die(); } // '/(?:\d+h)(?:\d{2}m)(?:\d{2}s)/' does not work
+		
+		$description = $_POST['demodetails']['description']; // htmlspecialchar on output
+		$videourl = $_POST['demodetails']['videourl'];
+		if (strlen($videourl) > 0 && !preg_match('/http/', $videourl)) { echo "wrong videourl?"; die(); }
+		
+		// username is not safe to be written to a filename, "/../" can be used ;)
+		$username = preg_replace('/[^\w-]/', '', $username);
+		
+		// let's create the filename
+		// <zipfile>_<bspfile>_ <skill>_(complete)_ (*h*m*s)_<YYYY-MM-DD>_ <playername>_ (protocol).zip
+		$demofilename ="";
+		$demofilename .= $zipname;
+		$demofilename .= "_".$bspname;
+		switch ($skill) {
+			case 0:
+				$demofilename .= "_easy";
+				break;
+			case 1:
+				$demofilename .= "_normal";
+				break;
+			case 2:
+				$demofilename .= "_hard";
+				break;
+			case 3:
+				$demofilename .= "_nightmare";
+				break;
+		}
+		if ($length) { $demofilename .= "_".$length; }
+		$demofilename .= "_".$date;
+		$demofilename .= "_".$username;
+		$demofilename .= "_".$protocol;
+		// now just the extension is missing, it is added below
+				
+		/* Inspect the uploaded file */
+		
+		// the user's browser sends the mime type, so I cannot test for 'application/x-dzip'
+		// so I allow application/octet-stream, at least my Opera sends that for a .dz file
+		// this probably allows way too many things, but hey, it is user controlled anyways
+		$mimetypes = array('application/zip', 'application/x-7z-compressed', 'application/octet-stream');
+		if (!in_array($_FILES['uploadedfile']['type'], $mimetypes)) {echo "not a zip or 7z!"; die(); }
+		
+		$extensions = array('zip', '7z', 'dz');
+		if (!in_array(pathinfo($_FILES['uploadedfile']['name'])['extension'], $extensions)) {echo "not a .zip, .7z or .dz!"; die(); }
+		
+		// Inspect the file's magic bytes
+		$filestrings = array('PK', '7z', 'DZ');
+		$handle = fopen($_FILES['uploadedfile']['tmp_name'], "r");
+		$filestring = fread($handle, 2);
+		fclose($handle);
+		if (!in_array($filestring, $filestrings)) {echo "bytes not PK, 7z or DZ!"; die(); }
+		
+		/* Move the uploaded file */
+		$target_dir = "/srv/http/files/demos/";
+		$demofilename .=  "." . pathinfo($_FILES['uploadedfile']['name'])['extension'];
+		$target_path = $target_dir . $demofilename;
+		
+		if (file_exists($target_path)) { echo "File exists!"; die(); }
 
-	if (!$result) {
-		header('HTTP/1.0 404 Not Found');
-		echo $zipname." is not in the database.";
-		require("_footer.php");
-		die();
-	}
+		if (move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_path)) {
+			echo "The file " . $demofilename ." has been added!";
+		} else {
+			echo "Could not move the file to /files/demos/ , tell Spirit.";
+		}
+		chmod($target_path, 0644); // should be set already by some php function but hey
+		
+		/* Add details to the database */
+		$stmt = $dbq->prepare("INSERT INTO demos (zipname, bspname, username, skill, protocol, date, length, description, videourl, file) VALUES (:zipname, :bspname, :username, :skill, :protocol, :date, :length, :description, :videourl, :file)");
+		$stmt->bindParam(':zipname', $zipname);
+		$stmt->bindParam(':bspname', $bspname);
+		$stmt->bindParam(':username', $username);
+		$stmt->bindParam(':skill', $skill);
+		$stmt->bindParam(':protocol', $protocol);
+		$stmt->bindParam(':date', $date);
+		$stmt->bindParam(':length', $length);
+		$stmt->bindParam(':description', $description);
+		$stmt->bindParam(':videourl', $videourl);
+		$stmt->bindParam(':file', $demofilename);
+		$stmt->execute();
+		$stmt->closeCursor();
+		
+	} // end demo add
 	
 	$mapid = $result['id']; //praktisch
 
@@ -202,6 +323,97 @@ echo "<div class=\"left\">";
 
 	/* ===== END INFO TABLE =====*/
 
+	
+?>
+<div id="demos">
+<br /><br /><br />
+<?php
+$preparedStatement = $dbq->prepare('SELECT * FROM demos WHERE zipname = :zipname');
+$preparedStatement->execute(array(':zipname' => $zipname));
+$demos = $preparedStatement->fetchAll();
+
+if ($demos) {
+	?>
+	<table id="demolist" cellpadding="1" cellspacing="1" border="1" rules="all" style="width:100%;">
+	<caption>Walkthrough demos:</caption>
+	<tr><th>DL</th><th>Skill</th><th>Length</th><th>Player</th><th>Protocol</th><th>Date</th></tr>
+	<?php
+	foreach ($demos as $demo){
+		echo "<tr><td><a href=\"/files/demos/".$demo['file']."\">DL</a></td><td>";
+		
+		switch ($demo['skill']) {
+			case 0:
+				echo "Easy";
+				break;
+			case 1:
+				echo "Normal";
+				break;
+			case 2:
+				echo "Hard";
+				break;
+			case 3:
+				echo "Nightmare";
+				break;
+		}
+		echo "</td><td>".$demo['length']."</td><td>".htmlspecialchars($demo['username'])."</td><td>".$demo['protocol']."</td><td>".$demo['date']."</td>";
+		if ($demo['description']) {
+			echo "<tr><td colspan=6>".htmlspecialchars($demo['description'])."</td>";
+		}
+	}
+}
+?>
+</table>
+
+<br /><br />
+<h3>New and beta: Upload your 100% walkthrough demo(s)</h3>
+<form enctype="multipart/form-data" action="<?php echo $zipname; ?>.html" method="POST">
+<input type="hidden" name="MAX_FILE_SIZE" value="50000000" />
+<input type="hidden" name="demodetails[zipname]" value="<?php echo $zipname; ?>" />
+
+<?php
+	// if the release has multiple maps, we need to know which one the demo is on
+	$preparedStatement = $dbq->prepare('SELECT bsp FROM startmaps WHERE zipname = :zipname');
+	$preparedStatement->execute(array(':zipname' => $zipname));
+	$startmaps = $preparedStatement->fetchAll();
+	if ($startmaps) {
+		echo "<label>Map</label>: <select name=\"demodetails[bspname]\">";
+		foreach ($startmaps as $startmap){
+			echo "<option value=\"".$startmap['bsp']."\">".$startmap['bsp']."</option>\n";
+		}
+		echo "<option value=\"complete\">[All maps]</option>"; // Blank option for "one zip with all maps"?
+		echo "</select>";
+	}
+?>
+
+<label>Skill</label>: <select required name="demodetails[skill]">
+<option value=""></option>
+<option value="0">Easy</option>
+<option value="1">Normal</option>
+<option value="2">Hard</option>
+<option value="3">Nightmare</option>
+</select>
+
+<label>Protocol</label>: <select required name="demodetails[protocol]">
+<option value=""></option>
+<option value="15">Standard (15)</option>
+<option value="666">Fitz (666)</option>
+<option value="10002">bjp (10002)</option>
+</select>
+
+<label><i>Date</i></label>: <input type="text" name="demodetails[date]" maxlength="10" value="<?php echo date("Y-m-d"); ?>" />
+<label><i>Length (XhXXmXXs)</i></label>: <input type="text" name="demodetails[length]" maxlength="9" /></span><br />
+<label><i>Description</i></label>: <input type="text" name="demodetails[description]" maxlength="80" size="60" value="" /><br />
+<label><i>URL to captured video</i></label>: <input type="text" name="demodetails[videourl]" size="40" value="" /><br />
+<br />
+Choose a file to upload: <input name="uploadedfile" type="file" /><br />
+<input type="submit" value="Upload File" /> 50 Megabyte maximum, only zip, 7z, dz (lowercase!)
+<br />You need to be logged in. <i>Italic items are optional</i>.
+</form>
+
+</div> <!-- demos -->
+
+<?php
+
 	// included files
 	echo "<br /><table id=\"includedfileslist\" cellpadding=\"1\" cellspacing=\"1\" border=\"1\" rules=\"all\">\n<caption>Files in the ZIP archive:</caption>\n<tr>\n<th>File</th>\n<th>Size</th>\n<th>Date</th>\n</tr>";
 
@@ -216,7 +428,7 @@ echo "<div class=\"left\">";
 		}
 	}
 	echo "</table>";
-
+	
 echo "</div> <!--left-->";
 
 echo "<div class=\"right\">";
