@@ -204,7 +204,7 @@ if ($_GET['map']) {
 		chmod($target_path, 0644); // should be set already by some php function but hey
 		
 		/* Add details to the database */
-		$stmt = $dbq->prepare("INSERT INTO demos (zipname, bspname, username, skill, protocol, date, length, description, videourl, file) VALUES (:zipname, :bspname, :username, :skill, :protocol, :date, :length, :description, :videourl, :file)");
+		$stmt = $dbq->prepare("INSERT INTO demos (zipname, bspname, username, skill, protocol, date, length, description, videourl, filename) VALUES (:zipname, :bspname, :username, :skill, :protocol, :date, :length, :description, :videourl, :filename)");
 		$stmt->bindParam(':zipname', $zipname);
 		$stmt->bindParam(':bspname', $bspname);
 		$stmt->bindParam(':username', $username);
@@ -214,7 +214,7 @@ if ($_GET['map']) {
 		$stmt->bindParam(':length', $length);
 		$stmt->bindParam(':description', $description);
 		$stmt->bindParam(':videourl', $videourl);
-		$stmt->bindParam(':file', $demofilename);
+		$stmt->bindParam(':filename', $demofilename);
 		$stmt->execute();
 		$stmt->closeCursor();
 		
@@ -325,8 +325,8 @@ echo "<div class=\"left\">";
 
 	
 ?>
+
 <div id="demos">
-<br /><br /><br />
 <?php
 $preparedStatement = $dbq->prepare('SELECT * FROM demos WHERE zipname = :zipname');
 $preparedStatement->execute(array(':zipname' => $zipname));
@@ -334,12 +334,13 @@ $demos = $preparedStatement->fetchAll();
 
 if ($demos) {
 	?>
+	<br /><br /><br />
 	<table id="demolist" cellpadding="1" cellspacing="1" border="1" rules="all" style="width:100%;">
 	<caption>Walkthrough demos:</caption>
-	<tr><th>DL</th><th>Skill</th><th>Length</th><th>Player</th><th>Protocol</th><th>Date</th></tr>
+	<tr><th>Download</th><th>Skill</th><th>Length</th><th>Player</th><th>Protocol</th><th>Date</th></tr>
 	<?php
 	foreach ($demos as $demo){
-		echo "<tr><td><a href=\"/files/demos/".$demo['file']."\">DL</a></td><td>";
+		echo "<tr><td><a href=\"/files/demos/".$demo['filename']."\">".$demo['bspname']."</a></td><td>";
 		
 		switch ($demo['skill']) {
 			case 0:
@@ -364,6 +365,7 @@ if ($demos) {
 ?>
 </table>
 
+<?php if($loggedin == true) { ?>
 <br /><br />
 <h3>New and beta: Upload your 100% walkthrough demo(s)</h3>
 <form enctype="multipart/form-data" action="<?php echo $zipname; ?>.html" method="POST">
@@ -409,7 +411,7 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 <input type="submit" value="Upload File" /> 50 Megabyte maximum, only zip, 7z, dz (lowercase!)
 <br />You need to be logged in. <i>Italic items are optional</i>.
 </form>
-
+<?php } /* end of the IF loggedin*/ ?>
 </div> <!-- demos -->
 
 <?php
@@ -520,9 +522,9 @@ echo "<div class=\"right\">";
 	echo "</div>"; //ratings div for schema.org
 
 	//comments
-	$preparedStatement = $dbq->prepare('SELECT comment,comments.zipname,time,comments.username,registered,rating_value FROM comments 
+	$preparedStatement = $dbq->prepare('SELECT comment,comments.zipname,comments.timestamp,comments.username,registered,rating_value FROM comments 
 					    LEFT OUTER JOIN ratings ON comments.username = ratings.username AND comments.zipname = ratings.zipname 
-					    WHERE comments.zipname= :zipname ORDER BY time');
+					    WHERE comments.zipname= :zipname ORDER BY comments.timestamp');
 	$preparedStatement->execute(array(':zipname' => $zipname));
 	$comments = $preparedStatement->fetchAll();
 	echo "<div id=\"comments\"><!--<h2 class=\"title\">Comments</h2>-->\n";
@@ -547,9 +549,9 @@ echo "<div class=\"right\">";
 		}
 		if ($row['rating_value']) { echo ", rated this a ".$row['rating_value'];}
 		echo "</small> ";
-		echo "<small class=\"commentdate\">".date("j F Y, G:i",$row['time'])."</small>";
+		echo "<small class=\"commentdate\">".date("j F Y, G:i",$row['timestamp'])."</small>";
 
-		if ($row['time'] > 1363384265) { // markdown was installed afterwards
+		if ($row['timestamp'] > 1363384265) { // markdown was installed afterwards
 			$html = $parser->transform($row['comment']); // markdown
 			$html = $purifier->purify($html); // html purifier
 		} else {

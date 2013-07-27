@@ -31,7 +31,7 @@ if (!$pun_user['is_guest'])
 		<input type="hidden" name="form_sent" value="1" />
 		<input type="hidden" name="redirect_url" value="<?php echo $redirect_url ?>" />
 		Username: <input type="text" name="req_username" size="25" maxlength="25" tabindex="1" />
-		Password: <input type="password" name="req_password" size="25" tabindex="2" /
+		Password: <input type="password" name="req_password" size="25" tabindex="2" />
 		<input type="checkbox" name="save_pass" value="1" tabindex="3" />Remember Me
 		<input type="submit" name="login" value="Login" tabindex="3" />
 	</form>

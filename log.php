@@ -58,7 +58,7 @@ while ($row = $results->fetchArray()) {
 }
 
 echo "</td></tr><tr><td colspan=\"3\"><h2>Comments</h2>";
-$results = $dbq->query('SELECT * FROM comments ORDER BY time DESC LIMIT 10');
+$results = $dbq->query('SELECT * FROM comments ORDER BY timestamp DESC LIMIT 10');
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['username'])." <small>on</small> <a href=\"".$row['zipname'].".html#comments\">".$row['zipname']."</a>: ";
 	// cut long comments

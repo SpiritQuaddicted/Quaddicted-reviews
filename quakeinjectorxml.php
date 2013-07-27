@@ -8,13 +8,17 @@ ob_start();
 
 $db = new SQLite3('/srv/http/quaddicted.sqlite');
 
-$results = $db->query('SELECT * FROM maps LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(bsp) AS startmaps FROM startmaps GROUP BY zipname) AS group_subselectbsp ON group_subselectbsp.zipname = maps.zipname LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(dependency) AS dependencies FROM dependencies GROUP BY zipname) AS group_subselectdep ON group_subselectdep.zipname = maps.zipname WHERE maps.type!=4 ORDER BY maps.zipname'); // currently excluding the speedmaps with that WHERE, TODO remove it once at least the techinfo was added for them
+$results = $db->query('SELECT * FROM maps 
+LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(bsp) AS startmaps FROM startmaps GROUP BY zipname) 
+AS group_subselectbsp ON group_subselectbsp.zipname = maps.zipname 
+LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(dependency) AS dependencies FROM dependencies GROUP BY zipname) 
+AS group_subselectdep ON group_subselectdep.zipname = maps.zipname WHERE maps.type!=4 ORDER BY maps.zipname'); // currently excluding the speedmaps with that WHERE, TODO remove it once at least the techinfo was added for them
 
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<files>\n";
 while ($row = $results->fetchArray()) {
 	//print_r($row);
 	//echo "<hr />";
-	echo "<file id=\"".$row[1]."\" type=\"".$row['type']."\" "; // $row[1] ist ein hack, ich weiss nicht wo 'zipname' hin ist. :(
+	echo "<file id=\"".$row[2]."\" type=\"".$row['type']."\" "; // $row[2] ist ein hack, ich weiss nicht wo 'zipname' hin ist. :(
 	
 	// benutzt der injector doch garnicht!
 	/*

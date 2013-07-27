@@ -7,9 +7,7 @@
                                 <a href="/">Frontpage</a>
                                 <a href="/forum/viewforum.php?id=5">News</a>
                                 <a href="/reviews/">Maps</a>
-                                <a href="/archives/">Archives</a>
-                                <a href="/articles/">Articles</a>
-                                <a href="/interviews/">Interviews</a>
+                                <a href="/start?do=index">Wiki</a>
                                 <a href="/forum/">Forum</a>
                                 <a href="/help">Help</a>
                         </span>

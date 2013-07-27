@@ -165,6 +165,10 @@ elseif($loggedin == true)
 }
 else
 {
+	// same query as above!
+//	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags FROM maps LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname'); // ORDER BY sum_ratings/num_ratings DESC'); // standard! "von iSteve, um nur maps mit tags zu zeigen: JOIN, um alle und mit tags LEFT OUTER JOIN" // ORDER BY random()
+//	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags,((SELECT avg(num_ratings) FROM maps WHERE num_ratings !="")*(SELECT (CAST (sum(sum_ratings) AS real)/sum(num_ratings)) FROM maps WHERE num_ratings !="") + num_ratings*(SELECT (CAST (sum(sum_ratings) AS real)/sum(num_ratings)))  ) / ((SELECT avg(num_ratings) FROM maps WHERE num_ratings !="") + num_ratings) AS bayesian_rating FROM maps LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname;');
+	//$query="select * from maps;";
 	$query='SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags,
 	(
 	    (SELECT avg(num_ratings) FROM maps WHERE num_ratings !="")
@@ -207,6 +211,7 @@ echo "<span><small>".(round(($time*1000),0))."ms before rendering the table</sma
 */
 
 while ($row = $results->fetchArray()) {
+//while ($row = $results->fetchArray()) {
 	//print_r($row);
 	//echo "<hr />";
 		if ($row['type'] == 2)
@@ -280,7 +285,7 @@ while ($row = $results->fetchArray()) {
 		}
 		
 		echo "</td><td class=\"tags\">";
-		if ($row['tags']){echo $row['tags'];};
+		if ($row['tags']){echo $row['tags'];}; //tags wurden ja gejoint
 		echo "</td></tr>\n";
 }
 
