@@ -27,6 +27,7 @@ if($_POST['zipname'] && $_POST['comment_text'] && $_POST['comment_user']){
 		$stmt->bindParam(':registered', $registered);
 		$stmt->bindParam(':comment_text', $comment_text);
 		$stmt->execute();
+		$stmt->closeCursor();
 
 		// if logged in
 		if (pun_htmlspecialchars($pun_user['username']) === $comment_user) {
@@ -34,12 +35,22 @@ if($_POST['zipname'] && $_POST['comment_text'] && $_POST['comment_user']){
 			$stmt = $dbq->prepare("UPDATE users SET num_comments = num_comments + 1 WHERE username = :comment_user");
 			$stmt->bindParam(':comment_user', $comment_user);
 			$stmt->execute();
+		$stmt->closeCursor();
 		}
 
 		//update map's comment count
 		$stmt = $dbq->prepare("UPDATE maps SET num_comments = num_comments + 1 WHERE zipname = :zipname");
 		$stmt->bindParam(':zipname', $zipname);
 		$stmt->execute();
+		$stmt->closeCursor();
+		
+		//add to recent activity
+		$recentactivity_text = "commented on <a href=\"/reviews/".$zipname.".html\">".$zipname."</a>: ".substr($comment_text,0,20)."(...)";
+		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+		$stmt->bindParam(':username', $comment_user);
+		$stmt->bindParam(':recentactivity_text', $recentactivity_text);
+		$stmt->execute();
+		$stmt->closeCursor();
 
 		//http_redirect("details.php", array("map" => "$zipname"), true, HTTP_REDIRECT_TEMP);
 		header("Location: $zipname.html");
