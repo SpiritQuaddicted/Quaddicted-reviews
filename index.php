@@ -21,7 +21,7 @@ $html_header = <<<EOT
     <link rel="alternate" type="application/rss+xml" title="Quaddicted.com - Quake Singleplayer Archive and News RSS Feed" href="/forum/extern.php?action=feed&amp;fid=5&amp;type=atom" />
     <link href="atom.php" type="application/atom+xml" rel="alternate" title="The latest Quake singleplayer releases at Quaddicted.com (Atom feed)" />
     <script src="/static/sorttable.js" type="text/javascript"></script>
- 
+
 <!-- table filter -->
 <script type="text/javascript">
    	function filter (phrase, _id){
@@ -83,7 +83,8 @@ $html_header = <<<EOT
 	function fillfilterfromurl() {
 		var urlparams = gup( 'filtered' );
 		if (urlparams){
-			urlparams = urlparams.replace(/\+/, " ");
+			urlparams = urlparams.replace(/\+/g, " ");
+			urlparams = urlparams.replace(/%20/g, " ");
 			var fillurlparams = document.getElementById('filterinput');
 			fillurlparams.value = urlparams;
 			filteri(urlparams, 'spmaps', '1');
@@ -97,20 +98,32 @@ $html_header = <<<EOT
 </head>
   <body onload="fillfilterfromurl()">
 	<div id="widewrapperthisidisnotused">
+		<div id="header">
+			<a href="/"><img src="/static/top.png" alt="Quaddicted.com Logo" id="logo" /></a>
+			<div id="quakeinjector"><img src="/static/injector64.png" alt="Quake Injector logo"/>Easily install and launch Quake maps with the cross-platform <a href="/tools/quake_injector">Quake Injector</a></div>
+			<br />
+			<br />
+                        <span id="navlinks">
+                                <a href="/">Frontpage</a>
+				<a href="/forum/viewforum.php?id=5">News</a>
+                                <a href="/reviews/">Maps</a>
+                                <a href="/archives/">Archives</a>
+				<a href="/articles/">Articles</a>
+                                <a href="/interviews/">Interviews</a>
+                                <a href="/start?do=index">Sitemap</a>
+                                <a href="/forum/">Forum</a>
+                                <a href="/help">Help</a>
+                        </span>
+		</div>
+	
+	<div id="content" style="width:99%;">
 EOT;
 
-
-$html_footer = <<<EOT
-</table>
-<p>To get a plain directory listing of all the files go to <a href="/filebase/">filebase/</a>.</p>
-EOT;
 
 echo $html_header;
-require("_header.php");
-echo '<div id="content" style="width:99%;">';
 //$time = microtime(true) - $time_start;
-$dbq = new PDO('sqlite:/srv/http/quaddicted.sqlite'); //userbar needs this
 $redirect_url = "/reviews/";
+$dbq = new PDO('sqlite:/srv/http/quaddicted.sqlite'); //userbar needs this
 include("userbar.php"); // include the top login bar, provides $loggedin = true/false
 $dbq = NULL; // the PDO is no longer needed, sqlite3 is used below
 
@@ -118,7 +131,7 @@ echo <<<EOT
 	<h2>Welcome to the most comprehensive archive of singleplayer maps for Quake.</h2>
 	Lighter rows are <a href="/help/installing_custom_content#installing_mods">mods</a>. Darker rows are speedmaps. <a href="/help/maps">Information on the map descriptions</a>. You are <a href="/archives/">encouraged to download everything</a>.
 <p>	<form>
-    		<b>Instant Filter:</b> <input name="filtered" onkeyup="filter(this, 'spmaps', '1')" type="text" id="filterinput" size="50" /><noscript> (needs Javascript enabled)</noscript>
+    		<b>Instant Filter:</b> <input name="filtered" onkeyup="filter(this, 'spmaps', '1')" type="text" id="filterinput" size="50" /><noscript> (enable Javascript for this to work)</noscript>
 	</form>
 </p>
 	<div style="float:right;"><a href="random_map.php">Play a random map!</a></div>
@@ -129,29 +142,72 @@ $dbq = new SQLite3('/srv/http/quaddicted.sqlite');
 
 if($loggedin === true && $_GET['myratings'] === "1")
 {
-	echo "<span>Showing maps you rated (shown in the \"User's\" column). <a href=\"/reviews/\">Reset view</a>. <a href=\"/reviews/?myratings=-1\">Maps you did not rate</a>.</span>";
+	echo '<span>Showing maps you rated. <a href=".">Reset view</a>. <a href="?myratings=-1">Maps you did not rate</a>.</span>';
 	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname AS zipname,title,size,date,rating,num_comments,rating_value,type,tags FROM maps 
 	JOIN (SELECT zipname,rating_value FROM ratings WHERE username = :username) AS ratings ON maps.zipname = ratings.zipname 
 	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname;');
 }
 elseif($loggedin === true && $_GET['myratings'] === "-1")
 {
-	echo "<span>Showing maps you did not rate. <a href=\"/reviews/\">Reset view</a>. <a href=\"/reviews/?myratings=1\">Maps you rated</a>.</span>";
-	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags FROM maps 
+	echo "<span>Showing maps you did not rate. <a href=\".\">Reset view</a>. <a href=\"?myratings=1\">Maps you rated</a>.</span>";
+	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags,
+	(
+	    (SELECT avg(num_ratings) FROM maps WHERE num_ratings !="")
+	    *
+	    (SELECT
+		(
+		    CAST(sum(sum_ratings) AS real)/sum(num_ratings)
+		) FROM maps WHERE num_ratings !=""
+	    )
+	    +
+	    num_ratings
+	    *
+	    (
+		CAST((sum_ratings) AS real) / (num_ratings)
+	    )
+	)
+	/
+	(
+	    (SELECT avg(num_ratings) FROM maps WHERE num_ratings !="")
+	    +
+	    num_ratings
+	)
+	AS bayesian_rating
+		
+		
+		
+		FROM maps 
 	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname WHERE maps.zipname 
 	NOT IN (SELECT zipname FROM ratings WHERE username = :username) ORDER BY maps.zipname;');
 }
-elseif($loggedin === true)
-{
-	echo "<span><a href=\"/reviews/?myratings=1\">Maps you rated</a>. <a href=\"/reviews/?myratings=-1\">Maps you did not rate</a>.</span>";
-	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags FROM maps 
-	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname'); // ORDER BY sum_ratings/num_ratings DESC'); // standard! "von iSteve, um nur maps mit tags zu zeigen: JOIN, um alle und mit tags LEFT OUTER JOIN" // ORDER BY random()
-}
 else
 {
-	// same query as above!
-	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags FROM maps 
-	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname'); // ORDER BY sum_ratings/num_ratings DESC'); // standard! "von iSteve, um nur maps mit tags zu zeigen: JOIN, um alle und mit tags LEFT OUTER JOIN" // ORDER BY random()
+	echo "<span><a href=\"?myratings=1\">Maps you rated</a>. <a href=\"?myratings=-1\">Maps you did not rate</a>.</span>";
+	$query='SELECT author,maps.zipname,title,size,date,rating,num_comments,num_ratings,sum_ratings,type,tags,
+	(
+	    (SELECT avg(num_ratings) FROM maps WHERE num_ratings !="")
+	    *
+	    (SELECT
+		(
+		    CAST(sum(sum_ratings) AS real)/sum(num_ratings)
+		) FROM maps WHERE num_ratings !=""
+	    )
+	    +
+	    num_ratings
+	    *
+	    (
+		CAST((sum_ratings) AS real) / (num_ratings)
+	    )
+	)
+	/
+	(
+	    (SELECT avg(num_ratings) FROM maps WHERE num_ratings !="")
+	    +
+	    num_ratings
+	)
+	AS bayesian_rating
+	FROM maps LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname;';
+	$preparedStatement = $dbq->prepare($query);
 }
 
 $preparedStatement->bindValue(':username', $username);
@@ -159,15 +215,18 @@ $results = $preparedStatement->execute();
 
 
 echo "<table class=\"sortable filelisting\" id=\"spmaps\">\n";
-echo "<tr><th><a>Author</a><small>⇅</small></th>
+echo "<tr><th><a>Author(s)</a><small>⇅</small></th>
 	<th><a>Title</a><small>⇅</small></th>
 	<th><a>Size</a><small>⇅</small></th>
 	<th><a>Date DMY</a><small>⇅</small></th>
 	<th><a>Rating</a><small>⇅</small></th>
-	<th><a>Com#</a><small>⇅</small></th>
-	<th><a>User's</a><small>⇅</small></th>
-	<th><a>Tags</a><small>⇅</small></th></tr>\n";
-
+	<th><a>Com#</a><small>⇅</small></th>";
+if ($loggedin === true && $_GET['myratings'] === "1") {
+	echo "<th><a>Yours</a><small>⇅</small></th>";
+} else {
+	echo "<th><a>Users'</a><small>⇅</small></th>";
+}
+echo	"<th><a>Tags</a><small>⇅</small></th></tr>\n";
 
 /*
 $time_end = microtime(true);
@@ -192,8 +251,8 @@ while ($row = $results->fetchArray()) {
 		}
 
 		echo "<td class=\"author\">".$row['author']."</td><td class=\"title\"><a href=\"".$row['zipname'].".html\">".$row['zipname'].".zip - ".$row['title']."</a></td>";
-		echo "<td class=\"size\"><a href=\"/filebase/".$row['zipname'].".zip\">".$row['size']." KB</a></td>";
-		echo "<td>".$row['date']."</td><td class=\"ratingtd\" sorttable_customkey=\"".$row['rating']."\">";
+		echo "<td class=\"size\" style=\"white-space: nowrap;\"><a href=\"/filebase/".$row['zipname'].".zip\">".$row['size']." KB</a></td>";
+		echo "<td style=\"text-align:center;\">".$row['date']."</td><td class=\"ratingtd\" sorttable_customkey=\"".$row['rating']."\">";
 
 		/*switch ($row['rating']) {
 		    case 1:
@@ -220,32 +279,28 @@ while ($row = $results->fetchArray()) {
 			echo "&hearts;";
 		}
 
-		echo "</td><td>";
+		echo "</td><td style=\"text-align:center;\">";
 		if($row['num_comments']){
 			echo "<a href=\"".$row['zipname'].".html#comments\">".$row['num_comments']."</a>";
-			//echo $row['num_comments'];
 		}
-		echo "</td><td class=\"userrating\">";
+		echo "</td>";
 
 		// user ratings
-		if($row['sum_ratings']){
-			$userrating = round($row['sum_ratings'] / $row['num_ratings'],1); // rounds to one decimal point
-			//echo $rating;
-			for ($i=0;$i<$userrating;$i++){
-				echo "&hearts;"; //♥
-				//echo "&#9733;"; //★
-			}
-		}
-
-		// user ratings
-		if($_GET['myratings'] === "1" && $row['rating_value']){
-			//echo $rating;
+		$rating = NULL;
+		echo "<td class=\"userrating\">";
+		if($row['bayesian_rating']){
+			$rating = round($row['bayesian_rating'],2)." (".$row['num_ratings'].")";
+		} elseif ($_GET['myratings'] === "1" && $row['rating_value']) {
 			for ($i=0;$i<$row['rating_value'];$i++){
-				echo "&hearts;"; //♥
-				//echo "&#9733;"; //★
+				$rating .= "&hearts;";
+			}
+		} else {
+			$userrating = round($row['sum_ratings'] / $row['num_ratings'],1);
+			for ($i=0;$i<$userrating;$i++){
+				$rating .= "&hearts;";
 			}
 		}
-
+		echo $rating;
 		echo "</td><td class=\"tags\">";
 		if ($row['tags'])
 			echo trim($row['tags'], ","); //tags were concatted in sql, so just print them
@@ -253,6 +308,9 @@ while ($row = $results->fetchArray()) {
 }
 
 $dbq = NULL;
+
+echo '</table><p>To get a plain directory listing of all the files go to <a href="/filebase/">filebase/</a>.</p>';
+
 echo $html_footer;
 require("_footer.php");
 /*$time_end = microtime(true);

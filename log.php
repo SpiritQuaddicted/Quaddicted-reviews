@@ -37,27 +37,27 @@ if (!$loggedin) {
 
 $dbq = new SQLite3('/srv/http/quaddicted.sqlite');
 
-echo "<h1>Latest Activity</h1>Top to bottom";
+echo "<h1>Latest Activity</h1>";
 
-echo "<table><tr><td><h2>Users</h2>";
+echo '<div style="float:left; margin:10px;"><h2>Users</h2>';
 $results = $dbq->query('SELECT username FROM users ORDER BY rowid DESC LIMIT 10');
 while ($row = $results->fetchArray()) {
 	echo "<a href=\"user.php?username=".htmlspecialchars($row['username'])."\">".htmlspecialchars($row['username'])."</a><br />\n";
 }
 
-echo "</td><td><h2>Tags</h2>";
+echo '</div><div style="float:left; margin:10px;"><h2>Tags</h2>';
 $results = $dbq->query('SELECT * FROM tags ORDER BY id DESC LIMIT 10');
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['tag'])." <small>on</small> <a href=\"".$row['zipname'].".html\">".$row['zipname']."</a> <small>by</small> ".htmlspecialchars($row['username'])."<br />\n";
 }
 
-echo "</td><td><h2>Ratings</h2>";
+echo '</div><div style="float:left; margin:10px;"><h2>Ratings</h2>';
 $results = $dbq->query('SELECT * FROM ratings ORDER BY id DESC LIMIT 10');
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['rating_value'])." <small>on</small> <a href=\"".$row['zipname'].".html\">".$row['zipname']."</a> <small>by</small> ".htmlspecialchars($row['username'])."<br />\n";
 }
 
-echo "</td></tr><tr><td colspan=\"3\"><h2>Comments</h2>";
+echo '</div><div style="float:left; margin:10px;"><h2>Comments</h2>';
 $results = $dbq->query('SELECT * FROM comments ORDER BY timestamp DESC LIMIT 10');
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['username'])." <small>on</small> <a href=\"".$row['zipname'].".html#comments\">".$row['zipname']."</a>: ";
@@ -71,12 +71,19 @@ while ($row = $results->fetchArray()) {
 	echo "<br />\n";
 }
 
-echo "</td></tr><tr><td colspan=\"3\"><h2>Maps</h2>";
+echo '</div><div style="float:left; margin:10px;"><h2>Maps</h2>';
 $results = $dbq->query('SELECT zipname,author,title,date FROM maps ORDER BY id DESC LIMIT 10');
 while ($row = $results->fetchArray()) {
 	echo "<small>".htmlspecialchars($row['date'])."</small> <a href=\"".$row['zipname'].".html\">".htmlspecialchars($row['zipname'])."</a> by ".htmlspecialchars($row['author'])."<br />\n";
 }
-echo "</td></tr></table>";
+
+echo '</div><div style="float:left; margin:10px;"><h2>Demos</h2>';
+$results = $dbq->query('SELECT zipname,username,skill FROM demos ORDER BY id DESC LIMIT 10');
+while ($row = $results->fetchArray()) {
+        echo "<a href=\"".$row['zipname'].".html\">".htmlspecialchars($row['zipname'])."</a> on Skill ".htmlspecialchars($row['skill'])." by ".htmlspecialchars($row['username'])."<br />\n";
+}
+echo "</div>";
+
 
 unset($dbq);
 //$time_end = microtime(true);

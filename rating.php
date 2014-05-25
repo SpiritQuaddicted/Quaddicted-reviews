@@ -55,7 +55,14 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->bindParam(':rating', $rating);
 				$stmt->bindParam(':username', $username);
 				$stmt->execute();
-
+				
+				//add to recent activity
+				$recentactivity_text = "rated <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> a ".$rating."/5";
+				$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+				$stmt->bindParam(':username', $username);
+				$stmt->bindParam(':recentactivity_text', $recentactivity_text);
+				$stmt->execute();
+				$stmt->closeCursor();
 			} else {
 					echo "malformed zipname or rating";
 					header('HTTP/1.1 403 Forbidden');

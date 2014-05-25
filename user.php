@@ -51,7 +51,7 @@ if (isset($_GET['username'])) {
 		$preparedStatement->execute(array(':username' => $result['username']));
 		$result = $preparedStatement->fetch();
 		$preparedStatement->closeCursor();
-		echo $result['num_ratings']." ratings, ".$result['num_comments']." comments and ".$result['num_tags']." tags";
+		echo "<h2>".$result['num_ratings']." ratings, ".$result['num_comments']." comments and ".$result['num_tags']." tags</h2>";
 		//$result['awards']. TODO
 
 		// ratings
@@ -60,28 +60,50 @@ if (isset($_GET['username'])) {
 		$ratings = $preparedStatement->fetchAll();
 
 		if ($ratings) {
-		echo "<h2>Last ratings:</h2>";
-		echo "<ul>";
+		echo '<div style="float:left; margin:10px;"><h2>Last ratings</h2>';
 		foreach ($ratings as $rating){
-			echo "<li>";
 /*			for ($i=0;$i<$rating['rating_value'];$i++){
 				echo "&hearts;";
 			}
-*/			echo $rating['rating_value']." <small>on</small> <a href=\"".$rating['zipname'].".html\">".$rating['zipname']."</a>";
-			echo "</li>";
+*/			echo $rating['rating_value']." <small>on</small> <a href=\"".$rating['zipname'].".html\">".$rating['zipname']."</a><br />";
 			}
-		echo "</ul>";
+		echo "</div>";
 		}
 
+		// tags
+		$preparedStatement = $dbq->prepare('SELECT * FROM tags, maps WHERE tags.username = :username AND tags.zipname == maps.zipname ORDER BY tags.id DESC LIMIT 10'); //GROUP BY maps.id ORDER BY maps.filename
+		$preparedStatement->execute(array(':username' => $result['username']));
+		$tags = $preparedStatement->fetchAll();
+
+		if ($tags) {
+		echo '<div style="float:left; margin:10px;"><h2>Last tags</h2>';
+		foreach ($tags as $tag){
+			echo $tag['tag']." <small>on</small> <a href=\"".$tag['zipname'].".html\">".$tag['zipname']."</a><br />";
+		}
+		echo "</div>";
+		}
+
+                // demos
+		$preparedStatement = $dbq->prepare('SELECT id,zipname,username,skill FROM demos WHERE username = :username ORDER BY id DESC LIMIT 10');
+                $preparedStatement->execute(array(':username' => $result['username']));
+                $demos = $preparedStatement->fetchAll();
+                if ($demos) {
+                    echo '<div style="float:left; margin:10px;"><h2>Last walkthrough demos</h2>';
+                    foreach ($demos as $demo){
+                        echo "Skill ".$demo['skill']." <small>on</small> <a href=\"".$demo['zipname'].".html\">".$demo['zipname']."</a><br />";
+                    }
+                echo "</div>";
+
+
 		// comments
-		$preparedStatement = $dbq->prepare('SELECT * FROM comments,maps WHERE username = :username AND comments.zipname == maps.zipname ORDER BY comments.id DESC LIMIT 10');
+		$preparedStatement = $dbq->prepare('SELECT * FROM comments,maps WHERE username = :username AND comments.zipname == maps.zipname ORDER BY comments.id DESC LIMIT 15');
 		$preparedStatement->execute(array(':username' => $result['username']));
 		$comments = $preparedStatement->fetchAll();
 
 		if ($ratings) {
-		echo "<h2>Last comments:</h2><ul>";
+		echo '<div style="float:left; margin:10px;"><h2>Last comments</h2>';
 		foreach ($comments as $comment){
-			echo "<li><a href=\"".$comment['zipname'].".html#comments\">".$comment['zipname']."</a>: ";
+			echo "<a href=\"".$comment['zipname'].".html#comments\">".$comment['zipname']."</a>: ";
 
 			// cut long comments
 			$commenttext = htmlspecialchars($comment['comment']);
@@ -91,23 +113,12 @@ if (isset($_GET['username'])) {
 				echo $commenttext;
 			}
 
-			echo "</li>";
+			echo "<br />";
 			}
-		echo "</ul>";
+		echo "</div>";
 		}
 
-		// tags
-		$preparedStatement = $dbq->prepare('SELECT * FROM tags, maps WHERE tags.username = :username AND tags.zipname == maps.zipname ORDER BY tags.id DESC LIMIT 10'); //GROUP BY maps.id ORDER BY maps.filename
-		$preparedStatement->execute(array(':username' => $result['username']));
-		$tags = $preparedStatement->fetchAll();
-
-		if ($tags) {
-		echo "<h2>Last tags:</h2><ul>";
-		foreach ($tags as $tag){
-			echo "<li>".$tag['tag']." <small>on</small> <a href=\"".$tag['zipname'].".html\">".$tag['zipname']."</a></li>";
-		}
-		echo "</ul>";
-		}
+		                                                                                                                                                                                        }
 	} else {
 		echo "That user does not exist.";
 	}

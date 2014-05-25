@@ -25,7 +25,7 @@ EOT;
 
 $html_header2 = <<<EOT
 <link rel="stylesheet" type="text/css" href="/static/style.css" />
-<link rel="stylesheet" type="text/css" href="starrating.css" />
+<link rel="stylesheet" type="text/css" href="/reviews/starrating.css" />
 <script type="text/javascript" src="rating.js"></script>
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
@@ -65,8 +65,8 @@ if ($_GET['map']) {
 	// if tags were added, add them to the db
 	if (isset($_POST['progress'])) {
 		if($_POST['tags']) {
-			if (!preg_match('/^[a-z0-9, ]*$/', $_POST['tags'])) {
-				echo "<h1>only lowercase a-z and 0-9 are allowed in tags. please go back and try again.</h1>";
+			if (!preg_match('/^[a-z0-9_\-, ]*$/', $_POST['tags'])) {
+				echo "<h1>only a-z, 0-9, _ and - are allowed in tags. please go back and try again.</h1>";
 				require("_footer.php");
 				die();
 			}
@@ -98,6 +98,14 @@ if ($_GET['map']) {
 			$stmt = $dbq->prepare("UPDATE users SET num_tags = num_tags + :tag_count WHERE username = :username");
 			$stmt->bindParam(':username', $username);
 			$stmt->bindParam(':tag_count', $tag_count);
+			$stmt->execute();
+			$stmt->closeCursor();
+			
+			//add to recent activity
+			$recentactivity_text = "added the tag(s) \"".$_POST['tags']."\" to <a href=\"/reviews/".$zipname.".html\">".$zipname."</a>"; // TODO make this safe D:
+			$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+			$stmt->bindParam(':username', $username);
+			$stmt->bindParam(':recentactivity_text', $recentactivity_text);
 			$stmt->execute();
 			$stmt->closeCursor();
 		}
@@ -176,7 +184,7 @@ if ($_GET['map']) {
 		// the user's browser sends the mime type, so I cannot test for 'application/x-dzip'
 		// so I allow application/octet-stream, at least my Opera sends that for a .dz file
 		// this probably allows way too many things, but hey, it is user controlled anyways
-		$mimetypes = array('application/zip', 'application/x-7z-compressed', 'application/octet-stream');
+		$mimetypes = array('application/zip', 'application/x-zip-compressed', 'application/x-7z-compressed', 'application/octet-stream');
 		if (!in_array($_FILES['uploadedfile']['type'], $mimetypes)) {echo "not a zip or 7z!"; die(); }
 		
 		$extensions = array('zip', '7z', 'dz');
@@ -218,13 +226,21 @@ if ($_GET['map']) {
 		$stmt->execute();
 		$stmt->closeCursor();
 		
+		//add to recent activity
+		$recentactivity_text = "added a 100% demo of <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> on skill ".$skill;
+		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+		$stmt->bindParam(':username', $comment_user);
+		$stmt->bindParam(':recentactivity_text', $recentactivity_text);
+		$stmt->execute();
+		$stmt->closeCursor();
+		
 	} // end demo add
 	
 	$mapid = $result['id']; //praktisch
 
-	echo "<title>".$result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake map archive at Quaddicted.com</title>";
-	echo "<meta name=\"keywords\" content=\"quake, quake map, quake level, quake singleplayer, quake download, ".$result['zipname'].", ".$result['title'].", ".$result['author'],"\" />";
-	echo "<meta name=\"description\" content=\"Screenshot, description, tags, comments for the Quake map ".$result['zipname'].".zip - ".$result['title']." by ".$result['author']."\" />";
+	echo "<title>".$result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake map archive at Quaddicted.com</title>\n";
+	echo "<meta name=\"keywords\" content='quake, quake map, quake level, quake singleplayer, quake download, ".$result['zipname'].", ".$result['title'].", ".$result['author'],"' />\n";
+	echo "<meta name=\"description\" content='Screenshot, description, tags, comments for the Quake map ".$result['zipname'].".zip - ".$result['title']." by ".$result['author']."' />\n";
 	echo $html_header2;
 
 	//echo "<body style=\"background: url(/reviews/screenshots/".$zipname.".jpg) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;\">";
@@ -235,7 +251,7 @@ if ($_GET['map']) {
 	$redirect_url = "/reviews/".$zipname.".html";
 	include("userbar.php"); // include the top login bar, provides $loggedin = true/false
 
-	$authorised_users = array('Spirit','negke','Drew');
+	$authorised_users = array('Spirit','negke','Drew','Icantthinkofanickname');
 	if (isset($pun_user['username']) && in_array($pun_user['username'], $authorised_users)) {
 		echo "<a href=\"/reviews/editor/edit.php?zipname=".$zipname."\">edit</a>\n"; // editor is also protected by a separate authentication
 	}
@@ -250,7 +266,7 @@ echo "<div class=\"left\">";
 	/* ===== START INFO TABLE =====*/
 
 	echo "<table id=\"infos\">\n";
-	echo "<tr class=\"light\"><td>Author:</td><td><a href=\"/reviews/?filtered=".$result['author']."\" rel=\"nofollow\">".$result['author']."</a></td></tr>\n";
+	echo "<tr class=\"light\"><td>Author:</td><td><a href='/reviews/?filtered=".$result['author']."' rel=\"nofollow\">".$result['author']."</a></td></tr>\n";
 	echo "<tr class=\"dark\"><td>Title:</td><td>".$result['title']."</td></tr>\n";
 	echo "<tr class=\"light\"><td>Download:</td><td><a href=\"/filebase/".$zipname.".zip\">".$zipname.".zip</a><small> (".$result['md5sum'].")</small></td></tr>\n";
 	echo "<tr class=\"dark\"><td>Filesize:</td><td>".$result['size']." Kilobytes</td></tr>\n";
@@ -268,7 +284,7 @@ echo "<div class=\"left\">";
 
 	if ($externallinks) {
 		foreach ($externallinks as $externallink){
-			echo "<a href=\"".$externallink['url']."\">".$externallink['title']."</a> &bull; ";
+			echo "<a href=\"".htmlentities($externallink['url'])."\">".$externallink['title']."</a> &bull; ";
 		}
 	}
 	echo "</td>";
@@ -361,14 +377,15 @@ if ($demos) {
 			echo "<tr><td colspan=6>".htmlspecialchars($demo['description'])."</td>";
 		}
 	}
+	echo "</table>";
 }
 ?>
-</table>
 
 <?php if($loggedin == true) { ?>
 <br /><br />
 <h3>New and beta: Upload your 100% walkthrough demo(s)</h3>
-<form enctype="multipart/form-data" action="<?php echo $zipname; ?>.html" method="POST">
+<form enctype="multipart/form-data" action="<?php echo $zipname; ?>.html" method="post">
+<div id="demouploadform"><!-- validator? ... -->
 <input type="hidden" name="MAX_FILE_SIZE" value="50000000" />
 <input type="hidden" name="demodetails[zipname]" value="<?php echo $zipname; ?>" />
 
@@ -403,13 +420,14 @@ if ($demos) {
 </select>
 
 <label><i>Date</i></label>: <input type="text" name="demodetails[date]" maxlength="10" value="<?php echo date("Y-m-d"); ?>" />
-<label><i>Length (XhXXmXXs)</i></label>: <input type="text" name="demodetails[length]" maxlength="9" /></span><br />
+<label><i>Length (XhXXmXXs)</i></label>: <input type="text" name="demodetails[length]" maxlength="9" /><br />
 <label><i>Description</i></label>: <input type="text" name="demodetails[description]" maxlength="80" size="60" value="" /><br />
 <label><i>URL to captured video</i></label>: <input type="text" name="demodetails[videourl]" size="40" value="" /><br />
 <br />
 Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 <input type="submit" value="Upload File" /> 50 Megabyte maximum, only zip, 7z, dz (lowercase!)
-<br />You need to be logged in. <i>Italic items are optional</i>.
+<br />You need to be logged in. <i>Italic items are optional.</i>
+</div>
 </form>
 <?php } /* end of the IF loggedin*/ ?>
 </div> <!-- demos -->
@@ -454,6 +472,7 @@ echo "<div class=\"right\">";
 		echo "<form enctype=\"multipart/form-data\" method=\"post\" action=\"".$zipname.".html\"><div><input type=\"hidden\" name=\"progress\" value=\"1\" /><input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />\n"; // zipname.html hat einen htaccess redirect auf details.php
 		echo '<br />Add comma-separated tags: <input type="text" name="tags" />
 		<input type="submit" value="Submit" /></div></form>';
+		echo '<small><a href="/help/tagging_policy">Please do not add evaluative tags</a></small>';
 	} /*else {
 		echo "\n<br /><br />You could add tags if you logged in.";
 	}*/
@@ -536,7 +555,7 @@ echo "<div class=\"right\">";
 		}
 		echo "<strong>".htmlspecialchars($row['username'])."</strong>";
 		echo "<small>";
-		if (preg_match('/^(negke|Spirit)$/', $row['username'])) {
+		if (preg_match('/^(negke|Spirit|Icantthinkofanickname)$/', $row['username']) && ($row['registered'] === "1" )) {
 			echo "<span style=\"color:gold;\" title=\"Premium user\">★</span>";
 		}
 
@@ -564,7 +583,7 @@ echo "<div class=\"right\">";
 	}
 
 	echo "<div id=\"commentform\"><h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
-	echo "<form method=\"post\" action=\"comment.php\">";
+	echo "<form method=\"post\" action=\"comment.php\"><div id=\"commentformdiv\">";
 	echo "<input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />";
 	echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
 	echo "<div id=\"commentinputfloater\" style=\"text-align:right;\">"; //to align the inputs on the right
@@ -576,8 +595,8 @@ echo "<div class=\"right\">";
 		echo "<br />Quake was released in <input type=\"text\" name=\"fhtagn\" maxlength=\"4\" size=\"4\" />";
 	}
 
-	echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" /></div></form></div>";
-	if (!$loggedin) { echo "</div>"; } // commentinputfloater
+	echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" /></div></div></form></div>";
+//	if (!$loggedin) { echo "</div>"; } // commentinputfloater
 	echo "</div>\n"; // commentform
 	echo "</div> <!--right-->";
 	echo "<div style=\"clear:both;\"></div>";

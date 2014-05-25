@@ -12,11 +12,11 @@ if (!$pun_user['is_guest'])
 	$preparedStatement->closeCursor();
 
 	if ($userresult) {
-		$num_total_maps = 1206; //todo dynamically
+		$num_total_maps = 1216; //todo dynamically
 		$num_ratings = $userresult['num_ratings']; //will sonst nicht
 		echo "<div id=\"userbar\">Welcome <a href=\"user.php?username=".$username."\">".$username."</a>. ";
 		//echo " You have collected <a href=\"\">".$userresult['awards']."</a>/<a href=\"\">9</a> achievements and left <a href=\"\">".$userresult['num_comments']." comments</a>, ".$userresult['num_tags']." tags.</div><br />";
-		echo "You rated <a href=\"/reviews/?myratings=1\">".$userresult['num_ratings']."</a>/<a href=\"/reviews/\">~1172</a> releases, <a href=\"/reviews/?myratings=-1\">".($num_total_maps-$num_ratings)."</a> to go.";
+		echo "You rated <a href=\"/reviews/?myratings=1\">".$userresult['num_ratings']."</a>/<a href=\"/reviews/\">~".$num_total_maps."</a> releases, <a href=\"/reviews/?myratings=-1\">".($num_total_maps-$num_ratings)."</a> to go.";
 		echo " You left ".$userresult['num_comments']." comments and ".$userresult['num_tags']." tags.";
 		echo " <a href=\"/forum/login.php?action=out&amp;id=".$pun_user['id']."&amp;csrf_token=".pun_hash($pun_user['id'].pun_hash(get_remote_address()))."\">Logout</a></div> <!-- userbar -->\n";
 		$loggedin = true;
