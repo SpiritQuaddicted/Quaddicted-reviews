@@ -35,7 +35,7 @@ if($_GET['rating'] && $_GET['zipname']){
 */
 		if (!$alreadyvoted) {
 			// insert
-			if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5) {
+			if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5 && $rating > 0) {
 
 				//update map rating
 				$stmt = $dbq->prepare("UPDATE maps SET num_ratings = num_ratings + 1, sum_ratings = sum_ratings + :rating_value WHERE zipname = :zipname");	
@@ -64,16 +64,44 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->execute();
 				$stmt->closeCursor();
 			} else {
-					echo "malformed zipname or rating";
-					header('HTTP/1.1 403 Forbidden');
-					die();
-				}
-		} else { 
-				echo "You already voted for that map...";
-				header("HTTP/1.1 418 I'm a teapot");
+				echo "malformed zipname or rating";
+				header('HTTP/1.1 403 Forbidden');
 				die();
 			}
-			$dbq = NULL; // unset database connection
+		} else {
+			if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5 && $rating > 0) {
+				$stmt = $dbq->prepare("UPDATE maps SET sum_ratings = sum_ratings + :new_rating - :old_rating WHERE zipname = :zipname");
+				$stmt->bindParam(':zipname', $zipname);
+				$stmt->bindParam(':new_rating', $rating);
+				$stmt->bindParam(':old_rating', $alreadyvoted['rating_value']);
+				$stmt->execute();
+
+				$stmt = $dbq->prepare("UPDATE ratings SET rating_value = :rating WHERE zipname = :zipname AND username = :username");
+				$stmt->bindParam(':zipname', $zipname);
+				$stmt->bindParam(':username', $username);
+				$stmt->bindParam(':rating', $rating);
+				$stmt->execute();
+
+				$stmt = $dbq->prepare("UPDATE users SET sum_ratings = sum_ratings + :new_rating - :old_rating WHERE username = :username");
+				$stmt->bindParam(':new_rating', $rating);
+				$stmt->bindParam(':old_rating', $alreadyvoted['rating_value']);
+				$stmt->bindParam(':username', $username);
+				$stmt->execute();
+
+				$recentactivity_text = "re-rated <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> a ".$rating."/5";
+				$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+				$stmt->bindParam(':username', $username);
+				$stmt->bindParam(':recentactivity_text', $recentactivity_text);
+				$stmt->execute();
+				$stmt->closeCursor();
+			} else {
+				echo "malformed zipname or rating";
+				header('HTTP/1.1 403 Forbidden');
+				die();
+			}
+		}
+
+		$dbq = NULL; // unset database connection
 	} else {
 			/* // Earlier the rating hearts were shown to visitors too and people did not
 			// realise that their votes would not count. When I found out I logged those
