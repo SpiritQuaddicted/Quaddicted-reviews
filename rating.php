@@ -16,7 +16,7 @@ if($_GET['rating'] && $_GET['zipname']){
 		$preparedStatement = $dbq->prepare("SELECT * FROM ratings WHERE username = :username AND zipname = :zipname");
 		$preparedStatement->execute(array(':username' => $username, ':zipname' => $zipname));
 		$alreadyvoted = $preparedStatement->fetch();
-		
+
 		// an angry user was ghost-banned here
 /*		if ($username === "hkBattousai" || $username === "WiederHater")
 		{
@@ -33,12 +33,10 @@ if($_GET['rating'] && $_GET['zipname']){
 			die();
 		}
 */
-		if (!$alreadyvoted) {
-			// insert
-			if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5 && $rating > 0) {
-
+		if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5 && $rating > 0) {
+			if (!$alreadyvoted) {
 				//update map rating
-				$stmt = $dbq->prepare("UPDATE maps SET num_ratings = num_ratings + 1, sum_ratings = sum_ratings + :rating_value WHERE zipname = :zipname");	
+				$stmt = $dbq->prepare("UPDATE maps SET num_ratings = num_ratings + 1, sum_ratings = sum_ratings + :rating_value WHERE zipname = :zipname");
 				$stmt->bindParam(':zipname', $zipname);
 				$stmt->bindParam(':rating_value', $rating);
 				$stmt->execute();
@@ -55,7 +53,7 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->bindParam(':rating', $rating);
 				$stmt->bindParam(':username', $username);
 				$stmt->execute();
-				
+
 				//add to recent activity
 				$recentactivity_text = "rated <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> a ".$rating."/5";
 				$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
@@ -64,12 +62,12 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->execute();
 				$stmt->closeCursor();
 			} else {
-				echo "malformed zipname or rating";
-				header('HTTP/1.1 403 Forbidden');
-				die();
-			}
-		} else {
-			if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5 && $rating > 0) {
+				if ((int)$rating === (int)$alreadyvoted['rating_value']) {
+					echo "You already voted for that map and gave it exactly the same rating...";
+					header("HTTP/1.1 418 I'm a teapot");
+					die();
+				}
+
 				$stmt = $dbq->prepare("UPDATE maps SET sum_ratings = sum_ratings + :new_rating - :old_rating WHERE zipname = :zipname");
 				$stmt->bindParam(':zipname', $zipname);
 				$stmt->bindParam(':new_rating', $rating);
@@ -94,11 +92,11 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->bindParam(':recentactivity_text', $recentactivity_text);
 				$stmt->execute();
 				$stmt->closeCursor();
-			} else {
-				echo "malformed zipname or rating";
-				header('HTTP/1.1 403 Forbidden');
-				die();
 			}
+		} else {
+			echo "malformed zipname or rating";
+			header('HTTP/1.1 403 Forbidden');
+			die();
 		}
 
 		$dbq = NULL; // unset database connection
