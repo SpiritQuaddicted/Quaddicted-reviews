@@ -45,8 +45,5 @@ if (!$pun_user['is_guest'])
 	<?php
 	echo "</div> <!-- userbar -->\n";
 	$loggedin = false;
-} else {
-	echo "what kind of user are you? tell spirit to fix this message";
 }
-
 ?>
