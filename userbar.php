@@ -14,9 +14,9 @@ if (!$pun_user['is_guest'])
 	if ($userresult) {
 		$preparedStatement = $dbq->prepare('SELECT count(*) AS count FROM maps;');
 		$preparedStatement->execute(array(':username' => $username));
-		$result = $preparedStatement->fetch();
+		$result_count = $preparedStatement->fetch();
 		$preparedStatement->closeCursor();
-		$num_total_maps = $result['count'];
+		$num_total_maps = $result_count['count'];
 
 		$num_ratings = $userresult['num_ratings']; //will sonst nicht
 		echo "<div id=\"userbar\">Welcome <a href=\"user.php?username=".$username."\">".$username."</a>. ";
