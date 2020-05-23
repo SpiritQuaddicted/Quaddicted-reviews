@@ -83,14 +83,10 @@ $html_header = <<<EOT
 	function fillfilterfromurl() {
 		var urlparams = gup( 'filtered' );
 		if (urlparams){
-			urlparams = urlparams.replace(/\+/g, " ");
-			urlparams = urlparams.replace(/%20/g, " ");
+			urlparams = decodeURIComponent(urlparams.replace(/\+/g, ' '));
 			var fillurlparams = document.getElementById('filterinput');
 			fillurlparams.value = urlparams;
 			filteri(urlparams, 'spmaps', '1');
-		}
-		else
-		{
 		}
 	}
 </script>
