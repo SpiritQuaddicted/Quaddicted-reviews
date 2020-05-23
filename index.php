@@ -224,7 +224,46 @@ $time = $time_end - $time_start;
 echo "<span><small>".(round(($time*1000),0))."ms before rendering the table</small></span>\n";
 */
 
-while ($row = $results->fetchArray()) {
+// from https://stackoverflow.com/questions/24754506/need-to-fetch-all-results-from-sqlite3result-to-multiarray
+function resultSetToArray($queryResultSet){
+    $multiArray = array();
+    $count = 0;
+    while($row = $queryResultSet->fetchArray(SQLITE3_ASSOC)){
+        foreach($row as $i=>$value) {
+            $multiArray[$count][$i] = $value;
+        }
+        $count++;
+    }
+    return $multiArray;
+}
+
+// i want all results so i can get a min and max from the rating thingie
+$results_fetched = resultSetToArray($results);
+
+$min = 5;
+$max = 0;
+foreach($results_fetched as $row) {
+  if ($row['bayesian_rating'] > $max) {
+    $max = $row['bayesian_rating'];
+  }
+  if (!empty($row['bayesian_rating']) && $row['bayesian_rating'] < $min) {
+    $min = $row['bayesian_rating'];
+  }
+}
+
+// via https://stats.stackexchange.com/questions/70801/how-to-normalize-data-to-0-1-range
+$new_max = 5;
+$new_min = 1;  // one heart...
+$a = ($new_max-$new_min)/($max-$min);
+$b = $new_max - $a * $max;
+
+function normalize($value, $a, $b) {
+	$normalized = $a * $value + $b;
+	return $normalized;
+}
+
+//while ($row = $results->fetchArray()) {
+foreach($results_fetched as $row) {
 	//print_r($row);
 	//echo "<hr />";
 		if ($row['type'] === 2)
@@ -279,15 +318,18 @@ while ($row = $results->fetchArray()) {
 		$rating = NULL;
 		echo "<td class=\"userrating\">";
 		if($row['bayesian_rating']){
+			$row['bayesian_rating'] = normalize($row['bayesian_rating'], $a, $b);
 			$rating = round($row['bayesian_rating'],2)." (".$row['num_ratings'].")";
 		} elseif ($_GET['myratings'] === "1" && $row['rating_value']) {
 			for ($i=0;$i<$row['rating_value'];$i++){
 				$rating .= "&hearts;";
 			}
 		} else {
-			$userrating = round($row['sum_ratings'] / $row['num_ratings'],1);
-			for ($i=0;$i<$userrating;$i++){
-				$rating .= "&hearts;";
+			if($row['num_ratings'] > 0) {
+				$userrating = round($row['sum_ratings'] / $row['num_ratings'],1);
+				for ($i=0;$i<$userrating;$i++){
+					$rating .= "&hearts;";
+				}
 			}
 		}
 		echo $rating;
