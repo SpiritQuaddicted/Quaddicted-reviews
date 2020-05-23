@@ -35,6 +35,22 @@ if (!$loggedin) {
 	die();
 }
 
+// number of items to fetch
+if ($_GET['number']) {
+	if (!preg_match('/^[0-9]+$/', $_GET['number'])) {
+		echo "malformed number, you get 10";
+		$number = 10;
+	} else {
+		$number = $_GET["number"];
+		if ($number > 50) {
+			echo "number too big, you get 50";
+			$number = 50;
+		}
+	}
+} else {
+	$number = 10;
+}
+
 $dbq = new SQLite3('/srv/http/quaddicted.sqlite');
 
 echo "<h1>Latest Activity</h1>";
@@ -46,19 +62,19 @@ while ($row = $results->fetchArray()) {
 }
 
 echo '</div><div style="float:left; margin:10px;"><h2>Tags</h2>';
-$results = $dbq->query('SELECT * FROM tags ORDER BY id DESC LIMIT 10');
+$results = $dbq->query('SELECT * FROM tags ORDER BY id DESC LIMIT '.$number);
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['tag'])." <small>on</small> <a href=\"".$row['zipname'].".html\">".$row['zipname']."</a> <small>by</small> ".htmlspecialchars($row['username'])."<br />\n";
 }
 
 echo '</div><div style="float:left; margin:10px;"><h2>Ratings</h2>';
-$results = $dbq->query('SELECT * FROM ratings ORDER BY id DESC LIMIT 10');
+$results = $dbq->query('SELECT * FROM ratings ORDER BY id DESC LIMIT '.$number);
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['rating_value'])." <small>on</small> <a href=\"".$row['zipname'].".html\">".$row['zipname']."</a> <small>by</small> ".htmlspecialchars($row['username'])."<br />\n";
 }
 
 echo '</div><div style="float:left; margin:10px;"><h2>Comments</h2>';
-$results = $dbq->query('SELECT * FROM comments ORDER BY timestamp DESC LIMIT 10');
+$results = $dbq->query('SELECT * FROM comments ORDER BY timestamp DESC LIMIT '.$number);
 while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['username'])." <small>on</small> <a href=\"".$row['zipname'].".html#comments\">".$row['zipname']."</a>: ";
 	// cut long comments
@@ -72,13 +88,13 @@ while ($row = $results->fetchArray()) {
 }
 
 echo '</div><div style="float:left; margin:10px;"><h2>Maps</h2>';
-$results = $dbq->query('SELECT zipname,author,title,date FROM maps ORDER BY id DESC LIMIT 10');
+$results = $dbq->query('SELECT zipname,author,title,date FROM maps ORDER BY id DESC LIMIT '.$number);
 while ($row = $results->fetchArray()) {
 	echo "<small>".htmlspecialchars($row['date'])."</small> <a href=\"".$row['zipname'].".html\">".htmlspecialchars($row['zipname'])."</a> by ".htmlspecialchars($row['author'])."<br />\n";
 }
 
 echo '</div><div style="float:left; margin:10px;"><h2>Demos</h2>';
-$results = $dbq->query('SELECT zipname,username,skill FROM demos ORDER BY id DESC LIMIT 10');
+$results = $dbq->query('SELECT zipname,username,skill FROM demos ORDER BY id DESC LIMIT '.$number);
 while ($row = $results->fetchArray()) {
         echo "<a href=\"".$row['zipname'].".html\">".htmlspecialchars($row['zipname'])."</a> on Skill ".htmlspecialchars($row['skill'])." by ".htmlspecialchars($row['username'])."<br />\n";
 }
