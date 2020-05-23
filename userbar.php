@@ -13,7 +13,7 @@ if (!$pun_user['is_guest'])
 
 	if ($userresult) {
 		$preparedStatement = $dbq->prepare('SELECT count(*) AS count FROM maps;');
-		$preparedStatement->execute(array(':username' => $username));
+		$preparedStatement->execute();
 		$result_count = $preparedStatement->fetch();
 		$preparedStatement->closeCursor();
 		$num_total_maps = $result_count['count'];
