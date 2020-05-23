@@ -24,7 +24,7 @@ $html_header = <<<EOT
 EOT;
 
 $html_header2 = <<<EOT
-<link rel="stylesheet" type="text/css" href="/static/style.css" />
+<link rel="stylesheet" type="text/css" href="/static/style.css?20180309" />
 <link rel="stylesheet" type="text/css" href="/reviews/starrating.css" />
 <script type="text/javascript" src="rating.js"></script>
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
