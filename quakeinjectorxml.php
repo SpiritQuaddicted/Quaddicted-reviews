@@ -23,17 +23,6 @@ while ($row = $results->fetchArray()) {
 	//echo "<hr />";
 	echo "<file id=\"".$row['zipname']."\" type=\"".$row['type']."\" ";
 	
-	// not currently used by the QI
-	/*
-	if ($row['hasbsp']==="1") { echo "hasbsp=\"1\" ";}
-	else { echo "hasbsp=\"0\" ";}
-	if ($row['haspak']==="1") { echo "haspak=\"1\" ";}
-	else { echo "haspak=\"0\" ";}
-	if ($row['hasprogs']==="1") { echo "hasprogs=\"1\" ";}
-	else { echo "hasprogs=\"0\" ";}
-	if ($row['hascustomstuff']==="1") { echo "hascustomstuff=\"1\" ";}
-	else { echo "hascustomstuff=\"0\" ";}
-	*/
 	echo "rating=\"".$row['rating']."\">\n";
 	
 		echo "\t<author>".$row['author']."</author>\n"; // if there are errors with the xml parsing, probably some editor forgot to encode & to &amp;
