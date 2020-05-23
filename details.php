@@ -538,6 +538,43 @@ echo "<div class=\"right\">";
 	} else {
 		echo "\n<br />You can NOT add ratings if you are not logged in.";
 	}
+
+	// histograms!
+	echo "<br />";
+        $preparedStatement = $dbq->prepare('SELECT rating_value, CAST(100.0*count()/(SELECT count(*) AS count FROM ratings WHERE zipname = :zipname)+0.5 AS int) AS percentage FROM ratings WHERE zipname = :zipname GROUP BY rating_value ORDER BY rating_value');
+        $preparedStatement->execute(array(':zipname' => $zipname));
+        $rating_frequencies = $preparedStatement->fetchAll();
+
+	// oh god
+	$ratings = [
+	  "1" => 0,
+	  "2" => 0,
+	  "3" => 0,
+	  "4" => 0,
+	  "5" => 0,
+	];
+
+	foreach ($rating_frequencies as $row) {
+	    $rating_value = (string) $row['rating_value'];
+	    $percentage = $row['percentage'];
+	    $ratings[$rating_value] = $percentage;
+	}
+
+	// oh shub
+	$svg = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="150" height="120" viewBox="0 0 150 120">';
+	$svg .= '<rect x="10"  y="'.(100-$ratings["1"]).'" width="20" height="'.$ratings["1"].'" />';
+	$svg .= '<rect x="40"  y="'.(100-$ratings["2"]).'" width="20" height="'.$ratings["2"].'" />';
+	$svg .= '<rect x="70"  y="'.(100-$ratings["3"]).'" width="20" height="'.$ratings["3"].'" />';
+	$svg .= '<rect x="100" y="'.(100-$ratings["4"]).'" width="20" height="'.$ratings["4"].'" />';
+	$svg .= '<rect x="130" y="'.(100-$ratings["5"]).'" width="20" height="'.$ratings["5"].'" />';
+	$svg .= '<text x="17" y="110">1</text>';
+	$svg .= '<text x="47" y="110">2</text>';
+	$svg .= '<text x="77" y="110">3</text>';
+	$svg .= '<text x="107" y="110">4</text>';
+	$svg .= '<text x="137" y="110">5</text>';
+	$svg .= '</svg>';
+	echo $svg;
+
 	echo "</div>"; //ratings div for schema.org
 
 	//comments
