@@ -343,7 +343,7 @@ echo "<div class=\"left\">";
 
 	/* ===== END INFO TABLE =====*/
 
-	
+
 ?>
 
 <div id="demos">
