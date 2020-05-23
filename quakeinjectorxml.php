@@ -15,7 +15,7 @@ FROM maps
 LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(bsp) AS startmaps FROM startmaps GROUP BY zipname) 
 AS group_subselectbsp ON group_subselectbsp.zipname = maps.zipname 
 LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(dependency) AS dependencies FROM dependencies GROUP BY zipname) 
-AS group_subselectdep ON group_subselectdep.zipname = maps.zipname WHERE maps.type!=4 ORDER BY maps.zipname'); // currently excluding the speedmaps with that WHERE, TODO remove it once at least the techinfo was added for them
+AS group_subselectdep ON group_subselectdep.zipname = maps.zipname ORDER BY maps.zipname');
 
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<files>\n";
 while ($row = $results->fetchArray()) {
