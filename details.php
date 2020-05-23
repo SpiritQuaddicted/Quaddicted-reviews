@@ -270,7 +270,7 @@ echo "<div class=\"left\">";
 	echo "<tr class=\"dark\"><td>Title:</td><td>".$result['title']."</td></tr>\n";
 	echo "<tr class=\"light\"><td>Download:</td><td><a href=\"/filebase/".$zipname.".zip\">".$zipname.".zip</a><small> (".$result['md5sum'].")</small></td></tr>\n";
 	echo "<tr class=\"dark\"><td>Filesize:</td><td>".$result['size']." Kilobytes</td></tr>\n";
-	echo "<tr class=\"light\"><td>Releasedate:</td><td>".$result['date']."</td></tr>\n";
+	echo "<tr class=\"light\"><td>Release date:</td><td>".$result['date']."</td></tr>\n";
 	if ($result['url']) {
 		echo "<tr class=\"dark\"><td>Homepage:</td><td><a href=\"".$result['url']."\">".$result['url']."</a></td></tr>\n";
 	} else {
@@ -435,7 +435,7 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 <?php
 
 	// included files
-	echo "<br /><table id=\"includedfileslist\" cellpadding=\"1\" cellspacing=\"1\" border=\"1\" rules=\"all\">\n<caption>Files in the ZIP archive:</caption>\n<tr>\n<th>File</th>\n<th>Size</th>\n<th>Date</th>\n</tr>";
+	echo "<br /><details><summary>Files in the ZIP archive</summary><table id=\"includedfileslist\" cellpadding=\"1\" cellspacing=\"1\" border=\"1\" rules=\"all\">\n<caption>Files in the ZIP archive:</caption>\n<tr>\n<th>File</th>\n<th>Size</th>\n<th>Date</th>\n</tr>";
 
 	$preparedStatement = $dbq->prepare('SELECT size,date,filename FROM includedfiles WHERE zipname = :zipname');
 	$preparedStatement->execute(array(':zipname' => $zipname));
