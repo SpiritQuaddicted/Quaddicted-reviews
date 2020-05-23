@@ -115,7 +115,7 @@ $html_header = <<<EOT
                                 <a href="/help">Help</a>
                         </span>
 		</div>
-	
+
 	<div id="content" style="width:99%;">
 EOT;
 
@@ -173,10 +173,7 @@ elseif($loggedin === true && $_GET['myratings'] === "-1")
 	    num_ratings
 	)
 	AS bayesian_rating
-		
-		
-		
-		FROM maps 
+		FROM maps
 	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname WHERE maps.zipname 
 	NOT IN (SELECT zipname FROM ratings WHERE username = :username) ORDER BY maps.zipname;');
 }

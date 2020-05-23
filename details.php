@@ -61,7 +61,7 @@ if ($_GET['map']) {
 		require("_footer.php");
 		die();
 	}
-	
+
 	// if tags were added, add them to the db
 	if (isset($_POST['progress'])) {
 		if($_POST['tags']) {
@@ -100,7 +100,7 @@ if ($_GET['map']) {
 			$stmt->bindParam(':tag_count', $tag_count);
 			$stmt->execute();
 			$stmt->closeCursor();
-			
+
 			//add to recent activity
 			$recentactivity_text = "added the tag(s) \"".$_POST['tags']."\" to <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a>"; // TODO make this safe D:
 			$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
@@ -110,9 +110,9 @@ if ($_GET['map']) {
 			$stmt->closeCursor();
 		}
 	}//end tag
-	
+
 	// if a file was uploaded, process it
-	if($_FILES['uploadedfile'] && $_POST['demodetails']) {		
+	if($_FILES['uploadedfile'] && $_POST['demodetails']) {
 
 		if (!$pun_user['is_guest']) {
 			$username = pun_htmlspecialchars($pun_user['username']);
@@ -120,11 +120,11 @@ if ($_GET['map']) {
 			echo "only logged in users can upload demos, sorry";
 			die();
 		}
-		
+
 		/* Inspect and sanitize the POST text data */
-		
+
 		if ($zipname != $_POST['demodetails']['zipname']) { echo "wrong zipname?"; die(); }
-		
+
 		$bspname = $_POST['demodetails']['bspname'];
 		if ($bspname === "complete") {
 			$bspname = "complete";
@@ -136,24 +136,24 @@ if ($_GET['map']) {
 		} else {
 			$bspname = $zipname; // release has one map inside and it is named the same as the zip
 		}
-				
+
 		$skill = $_POST['demodetails']['skill'];
 		if (!preg_match('/[0-3]/', $skill)) { echo "wrong skill?"; die(); }
 		$protocol = $_POST['demodetails']['protocol'];
 		if (!preg_match('/\d+/', $protocol)) { echo "wrong protocol?"; die(); }
 		$date = $_POST['demodetails']['date']; //YYYY-MM-DD
 		if (!preg_match('/\d{4}-\d{2}-\d{2}/', $date)) { echo "wrong date?"; die(); }
-		
+
 		$length = $_POST['demodetails']['length']; // (XXh)(XXm)(XXs)
 		if (strlen($length) > 0 && !preg_match('/[0-9]+[d,m,s]+/', $length)) { $length = false; echo "wrong length?"; die(); } // '/(?:\d+h)(?:\d{2}m)(?:\d{2}s)/' does not work
-		
+
 		$description = $_POST['demodetails']['description']; // htmlspecialchar on output
 		$videourl = $_POST['demodetails']['videourl'];
 		if (strlen($videourl) > 0 && !preg_match('/http/', $videourl)) { echo "wrong videourl?"; die(); }
-		
+
 		// username is not safe to be written to a filename, "/../" can be used ;)
 		$username = preg_replace('/[^\w-]/', '', $username);
-		
+
 		// let's create the filename
 		// <zipfile>_<bspfile>_ <skill>_(complete)_ (*h*m*s)_<YYYY-MM-DD>_ <playername>_ (protocol).zip
 		$demofilename ="";
@@ -178,30 +178,30 @@ if ($_GET['map']) {
 		$demofilename .= "_".$username;
 		$demofilename .= "_".$protocol;
 		// now just the extension is missing, it is added below
-				
+
 		/* Inspect the uploaded file */
-		
+
 		// the user's browser sends the mime type, so I cannot test for 'application/x-dzip'
 		// so I allow application/octet-stream, at least my Opera sends that for a .dz file
 		// this probably allows way too many things, but hey, it is user controlled anyways
 		$mimetypes = array('application/zip', 'application/x-zip-compressed', 'application/x-7z-compressed', 'application/octet-stream');
-		if (!in_array($_FILES['uploadedfile']['type'], $mimetypes)) {echo "not a zip or 7z!"; die(); }
-		
+		if (!in_array($_FILES['uploadedfile']['type'], $mimetypes)) {echo "'".$_FILES['uploadedfile']['type']."' mime type is not allowed!"; die(); }
+
 		$extensions = array('zip', '7z', 'dz');
-		if (!in_array(pathinfo($_FILES['uploadedfile']['name'])['extension'], $extensions)) {echo "not a .zip, .7z or .dz!"; die(); }
-		
+		if (!in_array(pathinfo($_FILES['uploadedfile']['name'])['extension'], $extensions)) {echo "extension not a .zip, .7z or .dz!"; die(); }
+
 		// Inspect the file's magic bytes
 		$filestrings = array('PK', '7z', 'DZ');
 		$handle = fopen($_FILES['uploadedfile']['tmp_name'], "r");
 		$filestring = fread($handle, 2);
 		fclose($handle);
 		if (!in_array($filestring, $filestrings)) {echo "bytes not PK, 7z or DZ!"; die(); }
-		
+
 		/* Move the uploaded file */
 		$target_dir = "/srv/http/files/demos/";
 		$demofilename .=  "." . pathinfo($_FILES['uploadedfile']['name'])['extension'];
 		$target_path = $target_dir . $demofilename;
-		
+
 		if (file_exists($target_path)) { echo "File exists!"; die(); }
 
 		if (move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_path)) {
@@ -210,7 +210,7 @@ if ($_GET['map']) {
 			echo "Could not move the file to /files/demos/ , tell Spirit.";
 		}
 		chmod($target_path, 0644); // should be set already by some php function but hey
-		
+
 		/* Add details to the database */
 		$stmt = $dbq->prepare("INSERT INTO demos (zipname, bspname, username, skill, protocol, date, length, description, videourl, filename) VALUES (:zipname, :bspname, :username, :skill, :protocol, :date, :length, :description, :videourl, :filename)");
 		$stmt->bindParam(':zipname', $zipname);
@@ -225,7 +225,7 @@ if ($_GET['map']) {
 		$stmt->bindParam(':filename', $demofilename);
 		$stmt->execute();
 		$stmt->closeCursor();
-		
+
 		//add to recent activity
 		$recentactivity_text = "added a 100% demo of <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a> on skill ".$skill;
 		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
@@ -233,9 +233,9 @@ if ($_GET['map']) {
 		$stmt->bindParam(':recentactivity_text', $recentactivity_text);
 		$stmt->execute();
 		$stmt->closeCursor();
-		
+
 	} // end demo add
-	
+
 	$mapid = $result['id']; //praktisch
 
 	echo "<title>".$result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake map archive at Quaddicted.com</title>\n";
@@ -357,7 +357,7 @@ if ($demos) {
 	<?php
 	foreach ($demos as $demo){
 		echo "<tr><td><a href=\"/files/demos/".$demo['filename']."\">".$demo['bspname']."</a></td><td>";
-		
+
 		switch ($demo['skill']) {
 			case 0:
 				echo "Easy";
@@ -448,7 +448,7 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 		}
 	}
 	echo "</table>";
-	
+
 echo "</div> <!--left-->";
 
 echo "<div class=\"right\">";
@@ -495,7 +495,7 @@ echo "<div class=\"right\">";
 			case 5:
 				echo "Excellent";
 				break;
-			default:    
+			default:
 				echo "no rating (yet)";
 				break;
 		}
