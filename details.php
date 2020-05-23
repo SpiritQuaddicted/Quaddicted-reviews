@@ -447,7 +447,7 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 			echo "<tr><td>".$includedfile['filename']."</td><td align=\"right\">".$filesize." KB</td><td>".$includedfile['date']."</td></tr>";
 		}
 	}
-	echo "</table>";
+	echo "</table></details>";
 
 echo "</div> <!--left-->";
 
