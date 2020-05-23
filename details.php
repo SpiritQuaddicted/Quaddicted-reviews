@@ -241,6 +241,10 @@ if ($_GET['map']) {
 	echo "<title>".$result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake map archive at Quaddicted.com</title>\n";
 	echo "<meta name=\"keywords\" content='quake, quake map, quake level, quake singleplayer, quake download, ".$result['zipname'].", ".$result['title'].", ".$result['author'],"' />\n";
 	echo "<meta name=\"description\" content='Screenshot, description, tags, comments for the Quake map ".$result['zipname'].".zip - ".$result['title']." by ".$result['author']."' />\n";
+	$trolled_users = array('');
+        if (isset($pun_user['username']) && in_array($pun_user['username'], $trolled_users)) {
+		echo '<style>body {font-family: Comic Sans !important; color: pink !important;}</style>';
+        }
 	echo $html_header2;
 
 	//echo "<body style=\"background: url(/reviews/screenshots/".$zipname.".jpg) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;\">";

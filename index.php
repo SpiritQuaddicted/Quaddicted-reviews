@@ -279,6 +279,17 @@ foreach($results_fetched as $row) {
 			echo "<tr class=\"dark\">";
 		}
 
+                /*
+$price = round($row['bayesian_rating']/2,2);
+                echo "<td><a style='color: red !important;' href='http://steamcommunity.com/games/SteamWorkshop/announcements/detail/208632365237576574'>";
+                if ($price < 0.01) {
+			echo "FREE!";
+                } else {
+                        echo "$ ".sprintf('%0.2f', $price);
+                }
+                echo "</a></td>";
+*/
+
 		echo "<td class=\"author\"><a href='/reviews/?filtered=".urlencode($row['author'])."' rel=\"nofollow\">".$row['author']."</a></td><td class=\"title\"><a href=\"".urlencode($row['zipname']).".html\">".$row['zipname'].".zip - ".$row['title']."</a></td>";
 		echo "<td class=\"size\" style=\"white-space: nowrap;\"><a href=\"/filebase/".$row['zipname'].".zip\">".$row['size']." KB</a></td>";
 		echo "<td style=\"text-align:center;\">".$row['date']."</td><td class=\"ratingtd\" sorttable_customkey=\"".$row['rating']."\">";
