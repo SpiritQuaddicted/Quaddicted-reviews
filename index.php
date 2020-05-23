@@ -250,7 +250,7 @@ while ($row = $results->fetchArray()) {
 			echo "<tr class=\"dark\">";
 		}
 
-		echo "<td class=\"author\">".$row['author']."</td><td class=\"title\"><a href=\"".$row['zipname'].".html\">".$row['zipname'].".zip - ".$row['title']."</a></td>";
+		echo "<td class=\"author\"><a href='/reviews/?filtered=".urlencode($row['author'])."' rel=\"nofollow\">".$row['author']."</a></td><td class=\"title\"><a href=\"".urlencode($row['zipname']).".html\">".$row['zipname'].".zip - ".$row['title']."</a></td>";
 		echo "<td class=\"size\" style=\"white-space: nowrap;\"><a href=\"/filebase/".$row['zipname'].".zip\">".$row['size']." KB</a></td>";
 		echo "<td style=\"text-align:center;\">".$row['date']."</td><td class=\"ratingtd\" sorttable_customkey=\"".$row['rating']."\">";
 

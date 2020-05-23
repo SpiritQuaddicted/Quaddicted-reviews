@@ -38,7 +38,7 @@ echo $html_header;
 if ($_GET['map']) {
 
 	// check if the requested map string can be an actual map
-	if (!preg_match('/^[a-z0-9-_\.!]*$/', $_GET['map'])) {
+	if (!preg_match('/^[a-z0-9-_\.!\+]*$/', $_GET['map'])) {
 		header('HTTP/1.0 404 Not Found');
 		echo "<h1>yummyumm!</h1>";
 		require("_footer.php");
@@ -102,7 +102,7 @@ if ($_GET['map']) {
 			$stmt->closeCursor();
 			
 			//add to recent activity
-			$recentactivity_text = "added the tag(s) \"".$_POST['tags']."\" to <a href=\"/reviews/".$zipname.".html\">".$zipname."</a>"; // TODO make this safe D:
+			$recentactivity_text = "added the tag(s) \"".$_POST['tags']."\" to <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a>"; // TODO make this safe D:
 			$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
 			$stmt->bindParam(':username', $username);
 			$stmt->bindParam(':recentactivity_text', $recentactivity_text);
@@ -227,7 +227,7 @@ if ($_GET['map']) {
 		$stmt->closeCursor();
 		
 		//add to recent activity
-		$recentactivity_text = "added a 100% demo of <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> on skill ".$skill;
+		$recentactivity_text = "added a 100% demo of <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a> on skill ".$skill;
 		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
 		$stmt->bindParam(':username', $comment_user);
 		$stmt->bindParam(':recentactivity_text', $recentactivity_text);
@@ -248,7 +248,7 @@ if ($_GET['map']) {
 
 	require("_header.php");
 	echo '<div id="content" class="review" itemscope itemtype="http://schema.org/CreativeWork">';
-	$redirect_url = "/reviews/".$zipname.".html";
+	$redirect_url = "/reviews/".urlencode($zipname).".html";
 	include("userbar.php"); // include the top login bar, provides $loggedin = true/false
 
 	$authorised_users = array('Spirit','negke','Drew','Icantthinkofanickname');
@@ -384,7 +384,7 @@ if ($demos) {
 <?php if($loggedin == true) { ?>
 <br /><br />
 <h3>New and beta: Upload your 100% walkthrough demo(s)</h3>
-<form enctype="multipart/form-data" action="<?php echo $zipname; ?>.html" method="post">
+<form enctype="multipart/form-data" action="<?php echo urlencode($zipname); ?>.html" method="post">
 <div id="demouploadform"><!-- validator? ... -->
 <input type="hidden" name="MAX_FILE_SIZE" value="50000000" />
 <input type="hidden" name="demodetails[zipname]" value="<?php echo $zipname; ?>" />
@@ -469,7 +469,7 @@ echo "<div class=\"right\">";
 	}
 
 	if ($loggedin) {
-		echo "<form enctype=\"multipart/form-data\" method=\"post\" action=\"".$zipname.".html\"><div><input type=\"hidden\" name=\"progress\" value=\"1\" /><input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />\n"; // zipname.html hat einen htaccess redirect auf details.php
+		echo "<form enctype=\"multipart/form-data\" method=\"post\" action=\"".urlencode($zipname).".html\"><div><input type=\"hidden\" name=\"progress\" value=\"1\" /><input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />\n"; // zipname.html hat einen htaccess redirect auf details.php
 		echo '<br />Add comma-separated tags: <input type="text" name="tags" />
 		<input type="submit" value="Submit" /></div></form>';
 		echo '<small><a href="/help/tagging_policy">Please do not add evaluative tags</a></small>';

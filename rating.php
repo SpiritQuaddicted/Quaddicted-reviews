@@ -33,7 +33,7 @@ if($_GET['rating'] && $_GET['zipname']){
 			die();
 		}
 */
-		if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5 && $rating > 0) {
+		if(preg_match('/^[a-z0-9-_\.!\+]*$/', $zipname) && $rating <= 5 && $rating > 0) {
 			if (!$alreadyvoted) {
 				//update map rating
 				$stmt = $dbq->prepare("UPDATE maps SET num_ratings = num_ratings + 1, sum_ratings = sum_ratings + :rating_value WHERE zipname = :zipname");
