@@ -10,7 +10,7 @@ ob_start();
 $db = new SQLite3('/srv/http/quaddicted.sqlite');
 
 $results = $db->query('SELECT 
-maps.zipname,type,rating,author,title,md5sum,size,date,description,zipbasedir,commandline,startmaps,dependencies 
+maps.zipname,type,rating,author,title,md5sum,size,date,description,tags,zipbasedir,commandline,startmaps,dependencies 
 FROM maps 
 LEFT OUTER JOIN (SELECT zipname, GROUP_CONCAT(bsp) AS startmaps FROM startmaps GROUP BY zipname) 
 AS group_subselectbsp ON group_subselectbsp.zipname = maps.zipname 
@@ -31,6 +31,7 @@ while ($row = $results->fetchArray()) {
 		echo "\t<size>".$row['size']."</size>\n";
 		echo "\t<date>".substr($row['date'],0,6).substr($row['date'],8,9)."</date>\n"; // FIXME, see TODO
 		echo "\t<description><![CDATA[".$row['description']."]]></description>\n";
+		echo "\t<tags>".$row['tags']."</tags>\n";
 		echo "\t<techinfo>\n";
 			// TODO if techinfo would be empty, it should be excluded
 			// TODO why don't i use isset() below?
