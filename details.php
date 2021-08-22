@@ -237,8 +237,8 @@ if ($_GET['map']) {
 	} // end demo add
 
 	$mapid = $result['id']; //praktisch
-
-	echo "<title>".$result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake map archive at Quaddicted.com</title>\n";
+	$page_title = $result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake archive at Quaddicted.com";
+	echo "<title>".$page_title."</title>\n";
 	echo "<meta name=\"keywords\" content='quake, quake map, quake level, quake singleplayer, quake download, ".$result['zipname'].", ".$result['title'].", ".$result['author'],"' />\n";
 	echo "<meta name=\"description\" content='Screenshot, description, tags, comments for the Quake map ".$result['zipname'].".zip - ".$result['title']." by ".$result['author']."' />\n";
 	$trolled_users = array('');
@@ -387,7 +387,7 @@ if ($demos) {
 
 <?php if($loggedin == true) { ?>
 <br /><br />
-<h3>New and beta: Upload your 100% walkthrough demo(s)</h3>
+<h3>Upload your 100% walkthrough demo(s)</h3>
 <form enctype="multipart/form-data" action="<?php echo urlencode($zipname); ?>.html" method="post">
 <div id="demouploadform"><!-- validator? ... -->
 <input type="hidden" name="MAX_FILE_SIZE" value="50000000" />
@@ -407,6 +407,7 @@ if ($demos) {
 		echo "</select>";
 	}
 ?>
+<br />
 
 <label>Skill</label>: <select required name="demodetails[skill]">
 <option value=""></option>
@@ -456,7 +457,8 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 echo "</div> <!--left-->";
 
 echo "<div class=\"right\">";
-	echo "<h2 class=\"title\" itemprop=\"name\">".$result['zipname'].".zip - ".$result['title']."</h2>";
+	echo "<h3 class=\"toptitle\" itemprop=\"name\">".$result['zipname'].".zip</h3>";
+	echo "<h2 class=\"title\" itemprop=\"name\">".$result['title']."</h2>";
 	echo "<span>".$result['description']."</span>\n";
 
 	/* Tags */
@@ -474,7 +476,7 @@ echo "<div class=\"right\">";
 
 	if ($loggedin) {
 		echo "<form enctype=\"multipart/form-data\" method=\"post\" action=\"".urlencode($zipname).".html\"><div><input type=\"hidden\" name=\"progress\" value=\"1\" /><input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />\n"; // zipname.html hat einen htaccess redirect auf details.php
-		echo '<br />Add comma-separated tags: <input type="text" name="tags" />
+		echo '<br />Add tags: <input type="text" name="tags" placeholder="comma, separated, please" />
 		<input type="submit" value="Submit" /></div></form>';
 		echo '<small><a href="/help/tagging_policy">Please do not add evaluative tags</a></small>';
 	} /*else {
@@ -623,7 +625,8 @@ echo "<div class=\"right\">";
 
 	}
 
-	echo "<div id=\"commentform\"><h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
+	echo "<div id=\"commentform\">";
+	echo "<h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
 	echo "<form method=\"post\" action=\"comment.php\"><div id=\"commentformdiv\">";
 	echo "<input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />";
 	echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
@@ -639,6 +642,7 @@ echo "<div class=\"right\">";
 	echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" /></div></div></form></div>";
 //	if (!$loggedin) { echo "</div>"; } // commentinputfloater
 	echo "</div>\n"; // commentform
+
 	echo "</div> <!--right-->";
 	echo "<div style=\"clear:both;\"></div>";
 
