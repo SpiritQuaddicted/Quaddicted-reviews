@@ -240,7 +240,12 @@ if ($_GET['map']) {
 	$page_title = $result['zipname'].".zip - ".$result['title']." by ".$result['author']." in the Quake archive at Quaddicted.com";
 	echo "<title>".$page_title."</title>\n";
 	echo "<meta name=\"keywords\" content='quake, quake map, quake level, quake singleplayer, quake download, ".$result['zipname'].", ".$result['title'].", ".$result['author'],"' />\n";
-	echo "<meta name=\"description\" content='Screenshot, description, tags, comments for the Quake map ".$result['zipname'].".zip - ".$result['title']." by ".$result['author']."' />\n";
+	echo "<meta name=\"description\" content='Screenshot, description, tags, comments for the Quake map/mod ".$result['zipname'].".zip - ".$result['title']." by ".$result['author']."' />\n";
+	echo "<meta property=\"og:type\" content=\"website\">\n";
+	echo "<meta property=\"og:url\" content=\"https://www.quaddicted.com/reviews/".$zipname.".html\">\n";
+	echo "<meta property=\"og:title\" content=\"".$page_title."\">\n";
+	echo "<meta property=\"og:description\" content=\"".str_replace('"', '&quot;', $result['description'])."\">\n";
+	echo "<meta property=\"og:image\" content=\"https://www.quaddicted.com/reviews/screenshots/".$zipname."_thumb.jpg\">\n";
 	$trolled_users = array('');
         if (isset($pun_user['username']) && in_array($pun_user['username'], $trolled_users)) {
 		echo '<style>body {font-family: Comic Sans !important; color: pink !important;}</style>';
