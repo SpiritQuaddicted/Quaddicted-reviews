@@ -55,7 +55,7 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->execute();
 
 				//add to recent activity
-				$recentactivity_text = "rated <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> a ".$rating."/5";
+				$recentactivity_text = "rated <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a> a ".$rating."/5";
 				$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
 				$stmt->bindParam(':username', $username);
 				$stmt->bindParam(':recentactivity_text', $recentactivity_text);
@@ -86,7 +86,7 @@ if($_GET['rating'] && $_GET['zipname']){
 				$stmt->bindParam(':username', $username);
 				$stmt->execute();
 
-				$recentactivity_text = "re-rated <a href=\"/reviews/".$zipname.".html\">".$zipname."</a> a ".$rating."/5";
+				$recentactivity_text = "re-rated <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a> a ".$rating."/5";
 				$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
 				$stmt->bindParam(':username', $username);
 				$stmt->bindParam(':recentactivity_text', $recentactivity_text);
