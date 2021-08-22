@@ -421,6 +421,8 @@ if ($demos) {
 <option value="2">Hard</option>
 <option value="3">Nightmare</option>
 </select>
+<div style="float:right;"><label><i>Length</i></label>: <input type="text" name="demodetails[length]" maxlength=9 size=10 placeholder="XhXXmXXs" /></div>
+<br style="clear:both;" />
 
 <label>Protocol</label>: <select required name="demodetails[protocol]">
 <option value=""></option>
@@ -428,11 +430,11 @@ if ($demos) {
 <option value="666">Fitz (666)</option>
 <option value="10002">bjp (10002)</option>
 </select>
+<div style="float:right;"><label><i>Date</i></label>: <input type="text" name="demodetails[date]" maxlength=10 size=10 value="<?php echo date("Y-m-d"); ?>" /></div>
+<br style="clear:both;" />
 
-<label><i>Date</i></label>: <input type="text" name="demodetails[date]" maxlength="10" value="<?php echo date("Y-m-d"); ?>" />
-<label><i>Length (XhXXmXXs)</i></label>: <input type="text" name="demodetails[length]" maxlength="9" /><br />
-<label><i>Description</i></label>: <input type="text" name="demodetails[description]" maxlength="80" size="60" value="" /><br />
-<label><i>URL to captured video</i></label>: <input type="text" name="demodetails[videourl]" size="40" value="" /><br />
+<label><i>Description</i></label>:<br /><input type="text" name="demodetails[description]" maxlength="80" size="40" value="" /><br />
+<label><i>URL to captured video</i></label>:<br /><input type="text" name="demodetails[videourl]" size="40" value="" /><br />
 <br />
 Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 <input type="submit" value="Upload File" /> 50 Megabyte maximum, only zip, 7z, dz (lowercase!)
