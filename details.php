@@ -102,7 +102,7 @@ if ($_GET['map']) {
 			$stmt->closeCursor();
 
 			//add to recent activity
-			$recentactivity_text = "added the tag(s) \"".$_POST['tags']."\" to <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a>"; // TODO make this safe D:
+			$recentactivity_text = "added the tag(s) \"".str_replace('  ', ' ', str_replace(',', ', ', $_POST['tags']))."\" to <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a>"; // TODO make this safe D:
 			$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
 			$stmt->bindParam(':username', $username);
 			$stmt->bindParam(':recentactivity_text', $recentactivity_text);
