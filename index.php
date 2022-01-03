@@ -8,22 +8,22 @@ include PUN_ROOT.'include/common.php';
 
 
 $html_header = <<<EOT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
   <head>
     <title>Quaddicted.com: Quake Singleplayer Maps</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="keywords" content="quake, quake maps, quake levels, quake singleplayer, quake downloads" />
     <meta name="description" content="This is the most comprehensive archive of singleplayer maps for Quake." />
-    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <link rel="stylesheet" type="text/css" href="/static/style.css?20211120d" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="alternate" type="application/rss+xml" title="Quaddicted.com - Quake Singleplayer Archive and News RSS Feed" href="/forum/extern.php?action=feed&amp;fid=5&amp;type=atom" />
     <link href="atom.php" type="application/atom+xml" rel="alternate" title="The latest Quake singleplayer releases at Quaddicted.com (Atom feed)" />
-    <script src="/static/sorttable.js" type="text/javascript"></script>
+    <script src="/static/sorttable.js"></script>
 
 <!-- table filter -->
-<script type="text/javascript">
+<script>
    	function filter (phrase, _id){
 		var words = phrase.value.toLowerCase().split(" ");
 		var table = document.getElementById(_id);
@@ -44,7 +44,7 @@ $html_header = <<<EOT
 	}
 </script>
 <!-- damn initial table filter -->
-<script type="text/javascript">
+<script>
    	function filteri (phrase, _id){
 		var words = phrase.toLowerCase().split(" ");
 		var table = document.getElementById(_id);
@@ -65,8 +65,7 @@ $html_header = <<<EOT
 	}
 </script>
 <!-- get parameters for the filter from the url -->
-<script type="text/javascript">
-
+<script>
 	function gup( name )
 	{
 		name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
@@ -123,10 +122,9 @@ $dbq = NULL; // the PDO is no longer needed, sqlite3 is used below
 echo <<<EOT
 	<h2>Welcome to the most comprehensive archive of singleplayer maps for Quake.</h2>
 	Lighter rows are <a href="/help/installing_custom_content#installing_mods">mods</a>. Darker rows are speedmaps. <a href="/help/maps">Information on the map descriptions</a>. You are <a href="/archives/">encouraged to download everything</a>.
-<p>	<form>
+	<form>
     		<b>Instant Filter:</b> <input name="filtered" onkeyup="filter(this, 'spmaps', '1')" type="text" id="filterinput" size="50" /><noscript> (enable Javascript for this to work)</noscript>
 	</form>
-</p>
 	<div style="float:right;"><a href="random_map.php">Play a random map!</a></div>
 EOT;
 
@@ -205,7 +203,7 @@ $results = $preparedStatement->execute();
 
 
 echo "<table class=\"sortable filelisting\" id=\"spmaps\">\n";
-echo "<tr><th><a>Author(s)</a><small>⇅</small></th>
+echo "<thead><tr><th><a>Author(s)</a><small>⇅</small></th>
 	<th><a>Title</a><small>⇅</small></th>
 	<th><a>Size</a><small>⇅</small></th>
 	<th><a>Date DMY</a><small>⇅</small></th>
@@ -216,7 +214,9 @@ if ($loggedin === true && $_GET['myratings'] === "1") {
 } else {
 	echo "<th><a>Users'</a><small>⇅</small></th>";
 }
-echo	"<th><a>Tags</a><small>⇅</small></th></tr>\n";
+echo "<th><a>Tags</a><small>⇅</small></th></tr></thead>\n";
+
+echo "<tbody>\n";
 
 /*
 $time_end = microtime(true);
@@ -352,7 +352,7 @@ $price = round($row['bayesian_rating']/2,2);
 
 $dbq = NULL;
 
-echo '</table><p>To get a plain directory listing of all the files go to <a href="/filebase/">filebase/</a>.</p>';
+echo '</tbody></table><p>To get a plain directory listing of all the files go to <a href="/filebase/">filebase/</a>.</p>';
 
 echo $html_footer;
 require("_footer.php");

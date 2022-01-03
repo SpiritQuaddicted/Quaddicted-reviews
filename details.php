@@ -17,16 +17,16 @@ $purifier = new HTMLPurifier($config);
 
 
 $html_header = <<<EOT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#" lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
 EOT;
 
 $html_header2 = <<<EOT
-<link rel="stylesheet" type="text/css" href="/static/style.css?20180309" />
+<link rel="stylesheet" type="text/css" href="/static/style.css?20211120d" />
 <link rel="stylesheet" type="text/css" href="/reviews/starrating.css" />
-<script type="text/javascript" src="rating.js"></script>
+<script src="rating.js?20220301"></script>
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 <link href="/reviews/atom.php" type="application/atom+xml" rel="alternate" title="The latest Quake singleplayer releases at Quaddicted.com (Atom feed)" />
@@ -269,7 +269,7 @@ echo "<div class=\"left\">";
 
 	// display the screenshot only if we have it
 	if (file_exists("/srv/http/reviews/screenshots/".$zipname.".jpg")) {
-		echo "<a href=\"/reviews/screenshots/".$zipname.".jpg\"><img src=\"/reviews/screenshots/".$zipname."_thumb.jpg\" alt=\"Screenshot of ".$zipname."\" class=\"screenshot\" /></a>\n";
+		echo "<a itemprop=\"image\" href=\"/reviews/screenshots/".$zipname.".jpg\"><img src=\"/reviews/screenshots/".$zipname."_thumb.jpg\" alt=\"Screenshot of ".$zipname."\" class=\"screenshot\" /></a>\n";
 	}
 
 	/* ===== START INFO TABLE =====*/
@@ -360,7 +360,7 @@ $demos = $preparedStatement->fetchAll();
 if ($demos) {
 	?>
 	<br /><br /><br />
-	<table id="demolist" cellpadding="1" cellspacing="1" border="1" rules="all" style="width:100%;">
+	<table id="demolist">
 	<caption>Walkthrough demos:</caption>
 	<tr><th>Download</th><th>Skill</th><th>Length</th><th>Player</th><th>Protocol</th><th>Date</th></tr>
 	<?php
@@ -447,7 +447,7 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 <?php
 
 	// included files
-	echo "<br /><details><summary>Files in the ZIP archive</summary><table id=\"includedfileslist\" cellpadding=\"1\" cellspacing=\"1\" border=\"1\" rules=\"all\">\n<caption>Files in the ZIP archive:</caption>\n<tr>\n<th>File</th>\n<th>Size</th>\n<th>Date</th>\n</tr>";
+	echo "<br /><details><summary>Files in the ZIP archive</summary><table id=\"includedfileslist\">\n<caption>Files in the ZIP archive:</caption>\n<tr>\n<th>File</th>\n<th>Size</th>\n<th>Date</th>\n</tr>";
 
 	$preparedStatement = $dbq->prepare('SELECT size,date,filename FROM includedfiles WHERE zipname = :zipname');
 	$preparedStatement->execute(array(':zipname' => $zipname));
@@ -456,7 +456,7 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 	if ($includedfiles) {
 		foreach ($includedfiles as $includedfile){
 			$filesize = ceil($includedfile['size']/1024);
-			echo "<tr><td>".$includedfile['filename']."</td><td align=\"right\">".$filesize." KB</td><td>".$includedfile['date']."</td></tr>";
+			echo "<tr><td>".$includedfile['filename']."</td><td class=\"filesize\">".$filesize." KB</td><td>".$includedfile['date']."</td></tr>";
 		}
 	}
 	echo "</table></details>";
@@ -464,9 +464,9 @@ Choose a file to upload: <input name="uploadedfile" type="file" /><br />
 echo "</div> <!--left-->";
 
 echo "<div class=\"right\">";
-	echo "<h3 class=\"toptitle\" itemprop=\"name\">".$result['zipname'].".zip</h3>";
+	echo "<h3 class=\"toptitle\" itemprop=\"alternateName\">".$result['zipname'].".zip</h3>";
 	echo "<h2 class=\"title\" itemprop=\"name\">".$result['title']."</h2>";
-	echo "<span>".$result['description']."</span>\n";
+	echo "<span itemprop=\"description\">".$result['description']."</span>\n";
 
 	/* Tags */
 	$preparedStatement = $dbq->prepare('SELECT DISTINCT tag FROM tags WHERE zipname = :zipname');
