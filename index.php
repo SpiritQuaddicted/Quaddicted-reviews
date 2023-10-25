@@ -136,7 +136,9 @@ if($loggedin === true && $_GET['myratings'] === "1")
 	echo '<span>Showing maps you rated. <a href=".">Reset view</a>. <a href="?myratings=-1">Maps you did not rate</a>.</span>';
 	$preparedStatement = $dbq->prepare('SELECT author,maps.zipname AS zipname,title,size,date,rating,num_comments,rating_value,type,tags FROM maps 
 	JOIN (SELECT zipname,rating_value FROM ratings WHERE username = :username) AS ratings ON maps.zipname = ratings.zipname 
-	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname;');
+	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname
+	ORDER BY DATE(substr(maps.date,7,4) || \'-\' || substr(maps.date,4,2) || \'-\' || substr(maps.date,1,2)) DESC
+	;');
 }
 elseif($loggedin === true && $_GET['myratings'] === "-1")
 {
@@ -165,8 +167,10 @@ elseif($loggedin === true && $_GET['myratings'] === "-1")
 	)
 	AS bayesian_rating
 		FROM maps
-	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname WHERE maps.zipname 
-	NOT IN (SELECT zipname FROM ratings WHERE username = :username) ORDER BY maps.zipname;');
+	LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname WHERE maps.zipname
+	NOT IN (SELECT zipname FROM ratings WHERE username = :username)
+	ORDER BY DATE(substr(maps.date,7,4) || \'-\' || substr(maps.date,4,2) || \'-\' || substr(maps.date,1,2)) DESC
+	;');
 }
 else
 {
@@ -194,7 +198,9 @@ else
 	    num_ratings
 	)
 	AS bayesian_rating
-	FROM maps LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname ORDER BY maps.zipname;';
+	FROM maps LEFT OUTER JOIN ( SELECT zipname, GROUP_CONCAT(DISTINCT tag) AS tags FROM tags GROUP BY zipname) AS group_subselect ON group_subselect.zipname = maps.zipname
+	ORDER BY DATE(substr(maps.date,7,4) || \'-\' || substr(maps.date,4,2) || \'-\' || substr(maps.date,1,2)) DESC
+	;';
 	$preparedStatement = $dbq->prepare($query);
 }
 
