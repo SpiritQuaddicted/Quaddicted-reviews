@@ -636,7 +636,7 @@ echo "<div class=\"right\">";
 
 	echo "<div id=\"commentform\">";
 	echo "<h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
-	echo "<form method=\"post\" action=\"comment.php\"><div id=\"commentformdiv\">";
+	echo "<form method=\"post\" action=\"comment.php\" onsubmit=\"document.getElementById('submit_button').disabled=true;\"><div id=\"commentformdiv\">";
 	echo "<input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />";
 	echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
 	echo "<div id=\"commentinputfloater\" style=\"text-align:right;\">"; //to align the inputs on the right
@@ -648,7 +648,7 @@ echo "<div class=\"right\">";
 		echo "<br />Quake was released in <input type=\"text\" name=\"fhtagn\" maxlength=\"4\" size=\"4\" />";
 	}
 
-	echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" /></div></div></form></div>";
+	echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" id=\"submit_button\"/></div></div></form></div>";
 //	if (!$loggedin) { echo "</div>"; } // commentinputfloater
 	echo "</div>\n"; // commentform
 
