@@ -44,9 +44,11 @@ if($_POST['zipname'] && $_POST['comment_text'] && $_POST['comment_user']){
 		$stmt->closeCursor();
 
 		//add to recent activity
-		$recentactivity_text = "commented on <a href=\"/reviews/".$zipname.".html\">".$zipname."</a>: ".substr($comment_text,0,20)."(...)";
-		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+                //$recentactivity_text = "commented on <a href=\"/reviews/".$zipname.".html\">".$zipname."</a>: ".substr($comment_text,0,20)."(...)";
+		$recentactivity_text = "commented on ".$zipname.": ".substr($comment_text,0,20)."(...)";
+		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, zipname, string) VALUES (:username, :zipname, :recentactivity_text)");
 		$stmt->bindParam(':username', $comment_user);
+                $stmt->bindParam(':zipname', $zipname);
 		$stmt->bindParam(':recentactivity_text', $recentactivity_text);
 		$stmt->execute();
 		$stmt->closeCursor();

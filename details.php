@@ -102,9 +102,10 @@ if ($_GET['map']) {
 			$stmt->closeCursor();
 
 			//add to recent activity
-			$recentactivity_text = "added the tag(s) \"".str_replace('  ', ' ', str_replace(',', ', ', $_POST['tags']))."\" to <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a>"; // TODO make this safe D:
-			$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+			$recentactivity_text = "added the tag(s) \"".str_replace('  ', ' ', str_replace(',', ', ', $_POST['tags']))."\" to ".$zipname; // TODO make this safe D:
+			$stmt = $dbq->prepare("INSERT INTO recentactivity (username, zipname, string) VALUES (:username, :zipname, :recentactivity_text)");
 			$stmt->bindParam(':username', $username);
+                        $stmt->bindParam(':zipname', $zipname);
 			$stmt->bindParam(':recentactivity_text', $recentactivity_text);
 			$stmt->execute();
 			$stmt->closeCursor();
@@ -227,9 +228,11 @@ if ($_GET['map']) {
 		$stmt->closeCursor();
 
 		//add to recent activity
-		$recentactivity_text = "added a 100% demo of <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a> on skill ".$skill;
-		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, string) VALUES (:username, :recentactivity_text)");
+		//$recentactivity_text = "added a 100% demo of <a href=\"/reviews/".urlencode($zipname).".html\">".$zipname."</a> on skill ".$skill;
+                $recentactivity_text = "added a 100% demo of ".$zipname." on skill ".$skill;
+		$stmt = $dbq->prepare("INSERT INTO recentactivity (username, zipname, string) VALUES (:username, :zipname, :recentactivity_text)");
 		$stmt->bindParam(':username', $comment_user);
+                $stmt->bindParam(':zipname', $zipname);
 		$stmt->bindParam(':recentactivity_text', $recentactivity_text);
 		$stmt->execute();
 		$stmt->closeCursor();
