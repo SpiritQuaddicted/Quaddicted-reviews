@@ -526,7 +526,9 @@ echo "<div class=\"right\">";
 		$rating = 0;
 	}
 
-	echo "<div itemprop=\"aggregateRating\" itemscope itemtype=\"http://schema.org/AggregateRating\"><strong>User Rating: </strong>";
+	echo "<div itemprop=\"aggregateRating\" itemscope itemtype=\"http://schema.org/AggregateRating\" style=\"clear:both;\">";
+	echo "<strong>User Rating: </strong><br />\n";
+	echo '<div style="float:left; height:120px; padding-top:42px;">';
 	if ($loggedin) {
 		echo "<ul class=\"star-rating\">\n<li class=\"current-rating\" id=\"current-rating\" style=\"width: ".($rating *25)."px\">Currently: ".$rating."/5 Stars.</li>\n";
 		echo "<li><a href=\"javascript:rateImg(1,'".$zipname."')\" title=\"1 star out of 5\" class=\"one-star\">1</a></li>\n";
@@ -537,7 +539,7 @@ echo "<div class=\"right\">";
 		echo "</ul>\n";
 	}
 
-	echo "<span itemprop=\"ratingValue\">".$rating."</span>/<span itemprop=\"bestRating\">5</span> with <span itemprop=\"ratingCount\">".$result['num_ratings']."</span> ratings";
+	echo "<span itemprop=\"ratingValue\">".$rating."</span>/<span itemprop=\"bestRating\">5</span> with <span itemprop=\"ratingCount\">".$result['num_ratings']."</span> ratings\n";
 
 	// todo would be nicer like "if ($loggedin && ($row['username'] === $username))"
 	if ($loggedin) {
@@ -546,18 +548,18 @@ echo "<div class=\"right\">";
 		$userrating = $preparedStatement->fetch();
 
 		if ($userrating) {
-			echo ", you gave it: <span class=\"userrating\">";
+			echo "<br />You gave it: <span class=\"userrating\">";
 			for ($i=0;$i<$userrating['rating_value'];$i++){
 				echo "&hearts;";
 			}
 			echo "</span>";
 		}
 	} else {
-		echo "\n<br />You can NOT add ratings if you are not logged in.";
+		echo "\n<br />You can NOT add ratings<br />if you are not logged in.\n";
 	}
+	echo "</div>\n"; // left float
 
 	// histograms!
-	echo "<br />";
         $preparedStatement = $dbq->prepare('SELECT rating_value, CAST(100.0*count()/(SELECT count(*) AS count FROM ratings WHERE zipname = :zipname)+0.5 AS int) AS percentage FROM ratings WHERE zipname = :zipname GROUP BY rating_value ORDER BY rating_value');
         $preparedStatement->execute(array(':zipname' => $zipname));
         $rating_frequencies = $preparedStatement->fetchAll();
@@ -590,13 +592,13 @@ echo "<div class=\"right\">";
 	$svg .= '<text x="107" y="110">4</text>';
 	$svg .= '<text x="137" y="110">5</text>';
 	$svg .= '</svg>';
-	echo $svg;
+	echo '<div style="float:right; padding-right:50px;">'.$svg.'</div>';
 
 	echo "</div>"; //ratings div for schema.org
+	echo "<br /><br /><br /><br /><br /><br /><br /><br />";  // lol fucking floats
 
 	//comments
-	$preparedStatement = $dbq->prepare('SELECT comment,comments.zipname,comments.timestamp,comments.username,registered,rating_value FROM comments 
-					    LEFT OUTER JOIN ratings ON comments.username = ratings.username AND comments.zipname = ratings.zipname 
+	$preparedStatement = $dbq->prepare('SELECT comment,comments.zipname,comments.timestamp,comments.username,registered FROM comments
 					    WHERE comments.zipname= :zipname ORDER BY comments.timestamp');
 	$preparedStatement->execute(array(':zipname' => $zipname));
 	$comments = $preparedStatement->fetchAll();
@@ -620,7 +622,6 @@ echo "<div class=\"right\">";
 		} elseif ($row['registered'] === "0" ) {
 			echo " Guest";
 		}
-		if ($row['rating_value']) { echo ", rated this a ".$row['rating_value'];}
 		echo "</small> ";
 		echo "<small class=\"commentdate\">".date("j F Y, G:i",$row['timestamp'])."</small>";
 
