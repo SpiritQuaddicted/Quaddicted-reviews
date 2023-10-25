@@ -428,6 +428,8 @@ if ($demos) {
 <option value=""></option>
 <option value="15">Standard (15)</option>
 <option value="666">Fitz (666)</option>
+<option value="999">RMQ (999)</option>
+<option value="FTE999">FTE999</option>
 <option value="10002">bjp (10002)</option>
 </select>
 <div style="float:right;"><label><i>Date</i></label>: <input type="text" name="demodetails[date]" maxlength=10 size=10 value="<?php echo date("Y-m-d"); ?>" /></div>
