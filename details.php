@@ -493,9 +493,7 @@ echo "<div class=\"right\">";
 		echo '<br />Add tags: <input type="text" name="tags" placeholder="comma, separated, please" />
 		<input type="submit" value="Submit" /></div></form>';
 		echo '<small><a href="/help/tagging_policy">Please do not add evaluative tags</a></small>';
-	} /*else {
-		echo "\n<br /><br />You could add tags if you logged in.";
-	}*/
+	}
 
 	if ($result['type'] != "4") {
 		echo "<br /><br /><strong><a href=\"/help/maps#rating\">Editor's Rating</a>: ";
@@ -640,23 +638,16 @@ echo "<div class=\"right\">";
 
 	}
 
-	echo "<div id=\"commentform\">";
-	echo "<h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
-	echo "<form method=\"post\" action=\"comment.php\" onsubmit=\"document.getElementById('submit_button').disabled=true;\"><div id=\"commentformdiv\">";
-	echo "<input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />";
-	echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
-	echo "<div id=\"commentinputfloater\" style=\"text-align:right;\">"; //to align the inputs on the right
 	if ($loggedin)
 	{
+		echo "<div id=\"commentform\">";
+		echo "<h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
+		echo "<form method=\"post\" action=\"comment.php\" onsubmit=\"document.getElementById('submit_button').disabled=true;\"><div id=\"commentformdiv\">";
+		echo "<input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />";
+		echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
+		echo "<div id=\"commentinputfloater\" style=\"text-align:right;\">"; //to align the inputs on the right
 		echo "<input type=\"hidden\" name=\"comment_user\" value=\"".htmlspecialchars($username)."\" />";
-	} else {
-		echo "Name <input type=\"text\" name=\"comment_user\" maxlength=\"40\" size=\"20\" />";
-		echo "<br />Quake was released in <input type=\"text\" name=\"fhtagn\" maxlength=\"4\" size=\"4\" />";
 	}
-
-	echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" id=\"submit_button\"/></div></div></form></div>";
-//	if (!$loggedin) { echo "</div>"; } // commentinputfloater
-	echo "</div>\n"; // commentform
 
 	echo "</div> <!--right-->";
 	echo "<div style=\"clear:both;\"></div>";

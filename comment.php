@@ -10,9 +10,8 @@ if($_POST['zipname'] && $_POST['comment_text'] && $_POST['comment_user']){
 	$dbq->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
 	//echo "Username: ".$comment_user." - Mapid: ".$mapid." - comment_text: ".$comment_text."<br />\n";
 
-	$spamprotection = $_POST['fhtagn'];
-	if ($pun_user['is_guest'] && ($spamprotection != "1996")) {
-		echo "Comment was not added because you failed the spam protection question. \nLet me help you: Quake was released in 1996... \nIf you use a nice browser like Opera you can just go back and your text will be there.";
+	if ($pun_user['is_guest']) {
+		echo "Comment was not added because you aren't logged in.";
 		die();
 	}
 
