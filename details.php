@@ -256,7 +256,7 @@ if ($_GET['map']) {
 	echo "<body>";
 
 	require("_header.php");
-	echo '<div id="content" class="review" itemscope itemtype="http://schema.org/CreativeWork">';
+	echo '<div id="content" class="review" itemscope itemtype="http://schema.org/Product">';  // changed from CreativeWork to Product because fuck Google, 20231018
 	$redirect_url = "/reviews/".urlencode($zipname).".html";
 	include("userbar.php"); // include the top login bar, provides $loggedin = true/false
 
