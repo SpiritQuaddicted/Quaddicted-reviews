@@ -16,7 +16,7 @@ if($_POST['zipname'] && $_POST['comment_text'] && $_POST['comment_user']){
 		die();
 	}
 
-	if(preg_match('/^[a-z0-9-_\.!\+]*$/', $zipname)) {
+	if(preg_match('/^[a-z0-9-_\.!\+ \(\)]*$/', $zipname)) {
 		if (pun_htmlspecialchars($pun_user['username']) === $comment_user) { $registered="1"; } else { $registered="0"; }
 
 		//store comment

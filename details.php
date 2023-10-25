@@ -38,9 +38,9 @@ echo $html_header;
 if ($_GET['map']) {
 
 	// check if the requested map string can be an actual map
-	if (!preg_match('/^[a-z0-9-_\.!\+]*$/', $_GET['map'])) {
+	if (!preg_match('/^[a-z0-9-_\.!\+ \(\)]*$/', $_GET['map'])) {
 		header('HTTP/1.0 404 Not Found');
-		echo "<h1>yummyumm!</h1>";
+		echo "<h1>Argh!</h1><p>This database entry points to a filename with uppercase characters or something like that. Spirit forgot again that only <code>[a-z0-9-_\.!\+ \(\)]</code> are supported. Post in https://www.quaddicted.com/forum/viewtopic.php?id=636 please, if no one did already.<br />-Spirit</p>";
 		require("_footer.php");
 		die();
 	} else {
