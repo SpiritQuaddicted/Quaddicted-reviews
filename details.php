@@ -269,7 +269,9 @@ echo "<div class=\"left\">";
 
 	// display the screenshot only if we have it
 	if (file_exists("/srv/http/reviews/screenshots/".$zipname.".jpg")) {
-		echo "<a itemprop=\"image\" href=\"/reviews/screenshots/".$zipname.".jpg\"><img src=\"/reviews/screenshots/".$zipname."_thumb.jpg\" alt=\"Screenshot of ".$zipname."\" class=\"screenshot\" /></a>\n";
+		echo "<a itemprop=\"image\" href=\"/reviews/screenshots/".$zipname.".jpg\">";
+		echo "<img src=\"/reviews/screenshots/".$zipname."_thumb.jpg\" alt=\"Screenshot of ".$zipname."\" class=\"screenshot\" width=\"500\" height=\"375\"/>";
+		echo "</a>\n";
 	}
 
 	/* ===== START INFO TABLE =====*/
