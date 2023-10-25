@@ -260,7 +260,7 @@ if ($_GET['map']) {
 	$redirect_url = "/reviews/".urlencode($zipname).".html";
 	include("userbar.php"); // include the top login bar, provides $loggedin = true/false
 
-	$authorised_users = array('Spirit','negke','Drew','Icantthinkofanickname');
+	$authorised_users = array('Spirit','negke', 'radiatoryang');
 	if (isset($pun_user['username']) && in_array($pun_user['username'], $authorised_users)) {
 		echo "<a href=\"/reviews/editor/edit.php?zipname=".$zipname."\">edit</a>\n"; // editor is also protected by a separate authentication
 	}
