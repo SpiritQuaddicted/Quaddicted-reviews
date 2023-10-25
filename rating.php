@@ -17,22 +17,6 @@ if($_GET['rating'] && $_GET['zipname']){
 		$preparedStatement->execute(array(':username' => $username, ':zipname' => $zipname));
 		$alreadyvoted = $preparedStatement->fetch();
 
-		// an angry user was ghost-banned here
-/*		if ($username === "hkBattousai" || $username === "WiederHater")
-		{
-			// log it, just in case
-			$file = "hkBattousai.txt";
-			$fh = fopen($file, 'a') or die("can't open file");
-			$stringData = "Username: ".$username." - zipname: ".$zipname." - Rating: ".$rating."\n";
-			fwrite($fh, $stringData);
-			fclose($fh);
-
-			$dbq = NULL; // unset database connection
-			header("HTTP/1.1 418 I'm a teapot");
-			echo "Take your anger elsewhere.";
-			die();
-		}
-*/
 		if(preg_match('/^[a-z0-9-_\.!\+ \(\)]*$/', $zipname) && $rating <= 5 && $rating > 0) {
 			if (!$alreadyvoted) {
 				//update map rating
@@ -101,20 +85,6 @@ if($_GET['rating'] && $_GET['zipname']){
 
 		$dbq = NULL; // unset database connection
 	} else {
-			/* // Earlier the rating hearts were shown to visitors too and people did not
-			// realise that their votes would not count. When I found out I logged those
-			// for a short while, but then I disabled showing of the hearts instead. Duh! Spirit
-			$zipname = $_GET['zipname'];
-			$rating = $_GET['rating'];
-			$ip = getenv('REMOTE_ADDR');
-			$time = gmdate("Ymd H:i:s - ");
-			if(preg_match("/^[a-z0-9-_\.!]*$/", $zipname) && $rating <= 5) {
-				$file = "anonymousvotes.txt";
-				$fh = fopen($file, 'a') or die("can't open file");
-				$stringData = $time."".$ip." - Zipname: ".$zipname." - Rating: ".$rating."\n";
-				fwrite($fh, $stringData);
-				fclose($fh);
-			}*/
 			echo "not logged in?";
 			header('HTTP/1.1 403 Forbidden');
 			die();
