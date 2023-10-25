@@ -27,16 +27,19 @@ echo '<div id="content">';
 $dbq = new PDO('sqlite:/srv/http/quaddicted.sqlite');
 include("userbar.php"); // include the top login bar, provides $loggedin = true/false
 
-if (!$loggedin) {
-	header('HTTP/1.0 403 Forbidden');
-	echo "This feature is only for registered users for privacy reasons. Register and/or login.";
-	require("_footer.php");
-	ob_end_flush();
-	die();
-}
-
 if (isset($_GET['username'])) {
 	$username = $_GET["username"];
+
+	if (!$pun_user['is_guest']) {
+	        $logged_in_username = pun_htmlspecialchars($pun_user['username']);
+	        if ($logged_in_username !== $_GET["username"]) {
+	                header('HTTP/1.0 403 Forbidden');
+	                echo "This feature only allows to look at one's own history for privacy reasons. Login if you want to look at yours.";
+	                require("_footer.php");
+	                ob_end_flush();
+	                die();
+	        }
+	}
 
 	$preparedStatement = $dbq->prepare('SELECT * FROM users WHERE username = :username');
 	$preparedStatement->execute(array(':username' => $username));
