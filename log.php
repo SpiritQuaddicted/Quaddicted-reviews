@@ -67,12 +67,6 @@ while ($row = $results->fetchArray()) {
 	echo htmlspecialchars($row['tag'])." <small>on</small> <a href=\"".$row['zipname'].".html\">".$row['zipname']."</a> <small>by</small> ".htmlspecialchars($row['username'])."<br />\n";
 }
 
-echo '</div><div style="float:left; margin:10px;"><h2>Ratings</h2>';
-$results = $dbq->query('SELECT * FROM ratings ORDER BY id DESC LIMIT '.$number);
-while ($row = $results->fetchArray()) {
-	echo htmlspecialchars($row['rating_value'])." <small>on</small> <a href=\"".$row['zipname'].".html\">".$row['zipname']."</a> <small>by</small> ".htmlspecialchars($row['username'])."<br />\n";
-}
-
 echo '</div><div style="float:left; margin:10px;"><h2>Comments</h2>';
 $results = $dbq->query('SELECT * FROM comments ORDER BY timestamp DESC LIMIT '.$number);
 while ($row = $results->fetchArray()) {
