@@ -607,7 +607,7 @@ echo "<div class=\"right\">";
 		}
 		echo "<strong>".htmlspecialchars($row['username'])."</strong>";
 		echo "<small>";
-		if (preg_match('/^(negke|Spirit|Icantthinkofanickname)$/', $row['username']) && ($row['registered'] === "1" )) {
+		if (preg_match('/^(negke|Spirit|radiatoryang|Drew|Icantthinkofanickname)$/', $row['username']) && ($row['registered'] === "1" )) {
 			echo "<span style=\"color:gold;\" title=\"Premium user\">★</span>";
 		}
 
