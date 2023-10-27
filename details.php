@@ -463,6 +463,8 @@ echo "<div class=\"right\">";
 		echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
 		echo "<div id=\"commentinputfloater\" style=\"text-align:right;\">"; //to align the inputs on the right
 		echo "<input type=\"hidden\" name=\"comment_user\" value=\"".htmlspecialchars($username)."\" />";
+		echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" id=\"submit_button\"/></div></div></form></div>";
+		echo "</div>\n"; // commentform
 	}
 
 	echo "</div> <!--right-->";
