@@ -26,7 +26,6 @@ EOT;
 $html_header2 = <<<EOT
 <link rel="stylesheet" type="text/css" href="/static/style.css?20211120d" />
 <link rel="stylesheet" type="text/css" href="/reviews/starrating.css" />
-<script src="rating.js?20220301"></script>
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 <link href="/reviews/atom.php" type="application/atom+xml" rel="alternate" title="The latest Quake singleplayer releases at Quaddicted.com (Atom feed)" />
@@ -348,11 +347,6 @@ echo "<div class=\"right\">";
 	echo '<div style="float:left; height:120px; padding-top:42px;">';
 	if ($loggedin) {
 		echo "<ul class=\"star-rating\">\n<li class=\"current-rating\" id=\"current-rating\" style=\"width: ".($rating *25)."px\">Currently: ".$rating."/5 Stars.</li>\n";
-		echo "<li><a href=\"javascript:rateImg(1,'".$zipname."')\" title=\"1 star out of 5\" class=\"one-star\">1</a></li>\n";
-		echo "<li><a href=\"javascript:rateImg(2,'".$zipname."')\" title=\"2 stars out of 5\" class=\"two-stars\">2</a></li>\n";
-		echo "<li><a href=\"javascript:rateImg(3,'".$zipname."')\" title=\"3 stars out of 5\" class=\"three-stars\">3</a></li>\n";
-		echo "<li><a href=\"javascript:rateImg(4,'".$zipname."')\" title=\"4 stars out of 5\" class=\"four-stars\">4</a></li>\n";
-    		echo "<li><a href=\"javascript:rateImg(5,'".$zipname."')\" title=\"5 stars out of 5\" class=\"five-stars\">5</a></li>\n";
 		echo "</ul>\n";
 	}
 
@@ -456,15 +450,7 @@ echo "<div class=\"right\">";
 
 	if ($loggedin)
 	{
-		echo "<div id=\"commentform\">";
-		echo "<h3>Post a Comment</h3><small>Your comment will be parsed with <a href=\"http://daringfireball.net/projects/markdown/dingus\">Markdown</a>!<br />Keep the comments on topic and do not post nonsense. <br />Did you read the file's readme?</small>";
-		echo "<form method=\"post\" action=\"comment.php\" onsubmit=\"document.getElementById('submit_button').disabled=true;\"><div id=\"commentformdiv\">";
-		echo "<input type=\"hidden\" name=\"zipname\" value=\"".$zipname."\" />";
-		echo "<textarea name=\"comment_text\" cols=\"40\" rows=\"13\"></textarea><br />";
-		echo "<div id=\"commentinputfloater\" style=\"text-align:right;\">"; //to align the inputs on the right
-		echo "<input type=\"hidden\" name=\"comment_user\" value=\"".htmlspecialchars($username)."\" />";
-		echo "<br /><input type=\"submit\" name=\"Submit\" value=\"Submit\" id=\"submit_button\"/></div></div></form></div>";
-		echo "</div>\n"; // commentform
+		echo "<a href='https://www.quaddicted.com/forum/viewtopic.php?id=1449'>Site is read-only for software migration.</a>";
 	}
 
 	echo "</div> <!--right-->";
